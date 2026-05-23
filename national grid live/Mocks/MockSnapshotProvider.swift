@@ -14,85 +14,89 @@ struct MockSnapshotProvider: SnapshotProvider {
 }
 
 extension Snapshot {
-    static let sample: Snapshot = {
-        let yearDates = (0..<14).map { offset -> String in
-            let date = Calendar(identifier: .iso8601)
-                .date(byAdding: .day, value: -13 + offset, to: Date.now)!
-            return Snapshot.dayFormatter.string(from: date)
+    static let sample: Snapshot = makeSample()
+
+    private static func makeSample() -> Snapshot {
+        let now = Date.now
+        let cal = Calendar(identifier: .iso8601)
+
+        let dayDates = (0..<48).map { offset -> String in
+            let date = cal.date(byAdding: .minute, value: -30 * (47 - offset), to: now)!
+            return timestampFormatter.string(from: date)
         }
-        let allTimeDates = (0..<24).map { offset -> String in
-            let date = Calendar(identifier: .iso8601)
-                .date(byAdding: .month, value: -23 + offset, to: Date.now)!
-            return Snapshot.monthFormatter.string(from: date)
+        let weekDates = (0..<168).map { offset -> String in
+            let date = cal.date(byAdding: .hour, value: -(167 - offset), to: now)!
+            return timestampFormatter.string(from: date)
+        }
+        let yearDates = (0..<365).map { offset -> String in
+            let date = cal.date(byAdding: .day, value: -(364 - offset), to: now)!
+            return dayFormatter.string(from: date)
+        }
+        let monthDates = (0..<60).map { offset -> String in
+            let date = cal.date(byAdding: .month, value: -(59 - offset), to: now)!
+            return monthFormatter.string(from: date)
         }
 
         return Snapshot(
             schemaVersion: 1,
-            generated: .now,
+            generated: now,
             sources: .init(
                 elexon: "Contains BMRS data © Elexon Limited copyright and database right 2026.",
                 carbonIntensity: "Carbon intensity data © National Grid ESO and Oxford CS, CC BY 4.0.",
                 neso: "Contains NESO Data Portal data, NESO Open Licence."
             ),
-            year: .init(
-                from: yearDates.first!,
-                to: yearDates.last!,
-                granularity: .day,
-                dates: yearDates,
-                price:      Snapshot.wave(yearDates.count, base: 95, amp: 35),
-                emissions:  Snapshot.wave(yearDates.count, base: 130, amp: 60),
-                demand:     Snapshot.wave(yearDates.count, base: 26, amp: 4),
-                generation: Snapshot.wave(yearDates.count, base: 21, amp: 4),
-                transfers:  Snapshot.wave(yearDates.count, base: 4, amp: 1.5),
-                fuels: [
-                    .gas:     Snapshot.wave(yearDates.count, base: 6, amp: 3),
-                    .coal:    Array(repeating: 0.0, count: yearDates.count),
-                    .wind:    Snapshot.wave(yearDates.count, base: 7, amp: 4),
-                    .solar:   Snapshot.wave(yearDates.count, base: 3, amp: 2),
-                    .hydro:   Snapshot.wave(yearDates.count, base: 0.3, amp: 0.1),
-                    .nuclear: Snapshot.wave(yearDates.count, base: 2.5, amp: 0.3),
-                    .biomass: Snapshot.wave(yearDates.count, base: 1.7, amp: 0.4),
-                    .pumped:  Snapshot.wave(yearDates.count, base: 0, amp: 0.4)
-                ],
-                interconnectors: [
-                    .france:      Snapshot.wave(yearDates.count, base: 2.8, amp: 1),
-                    .norway:      Snapshot.wave(yearDates.count, base: 1.3, amp: 0.4),
-                    .belgium:     Snapshot.wave(yearDates.count, base: 0.5, amp: 0.5),
-                    .denmark:     Snapshot.wave(yearDates.count, base: 0.4, amp: 0.4),
-                    .ireland:     Snapshot.wave(yearDates.count, base: -0.5, amp: 0.5),
-                    .netherlands: Snapshot.wave(yearDates.count, base: 0.3, amp: 0.6)
-                ]
-            ),
-            allTime: .init(
-                from: allTimeDates.first!,
-                to: allTimeDates.last!,
-                granularity: .month,
-                dates: allTimeDates,
-                price:      Snapshot.wave(allTimeDates.count, base: 100, amp: 40),
-                emissions:  Snapshot.wave(allTimeDates.count, base: 180, amp: 90),
-                demand:     Snapshot.wave(allTimeDates.count, base: 28, amp: 5),
-                generation: Snapshot.wave(allTimeDates.count, base: 23, amp: 5),
-                transfers:  Snapshot.wave(allTimeDates.count, base: 4, amp: 2),
-                fuels: [
-                    .gas:     Snapshot.wave(allTimeDates.count, base: 9, amp: 4),
-                    .coal:    Snapshot.wave(allTimeDates.count, base: 0.5, amp: 0.5),
-                    .wind:    Snapshot.wave(allTimeDates.count, base: 6, amp: 3),
-                    .solar:   Snapshot.wave(allTimeDates.count, base: 2, amp: 1.5),
-                    .hydro:   Array(repeating: 0.3, count: allTimeDates.count),
-                    .nuclear: Snapshot.wave(allTimeDates.count, base: 3, amp: 0.5),
-                    .biomass: Snapshot.wave(allTimeDates.count, base: 1.8, amp: 0.5),
-                    .pumped:  Snapshot.wave(allTimeDates.count, base: 0, amp: 0.3)
-                ],
-                interconnectors: [
-                    .france:      Snapshot.wave(allTimeDates.count, base: 2.5, amp: 1),
-                    .norway:      Snapshot.wave(allTimeDates.count, base: 1.0, amp: 0.5),
-                    .belgium:     Snapshot.wave(allTimeDates.count, base: 0.4, amp: 0.5),
-                    .denmark:     Snapshot.wave(allTimeDates.count, base: 0.3, amp: 0.3),
-                    .ireland:     Snapshot.wave(allTimeDates.count, base: -0.3, amp: 0.5),
-                    .netherlands: Snapshot.wave(allTimeDates.count, base: 0.2, amp: 0.5)
-                ]
-            )
+            day:     buildSeries(dates: dayDates,    granularity: .halfHour, cycles: 1),
+            week:    buildSeries(dates: weekDates,   granularity: .hour,     cycles: 7),
+            year:    buildSeries(dates: yearDates,   granularity: .day,      cycles: 1),
+            allTime: buildSeries(dates: monthDates,  granularity: .month,    cycles: 1, drift: -0.3)
         )
+    }
+
+    private static func buildSeries(
+        dates: [String],
+        granularity: Granularity,
+        cycles: Double,
+        drift: Double = 0
+    ) -> Series {
+        let n = dates.count
+        return Series(
+            from: dates.first ?? "",
+            to: dates.last ?? "",
+            granularity: granularity,
+            dates: dates,
+            price:      wave(n, base: 95,  amp: 35,  cycles: cycles, drift: drift * 30),
+            emissions:  wave(n, base: 130, amp: 60,  cycles: cycles, drift: drift * 60),
+            demand:     wave(n, base: 26,  amp: 4,   cycles: cycles, drift: drift),
+            generation: wave(n, base: 21,  amp: 4,   cycles: cycles, drift: drift),
+            transfers:  wave(n, base: 4,   amp: 1.5, cycles: cycles, drift: drift),
+            fuels: [
+                .gas:     wave(n, base: 6,    amp: 3,   cycles: cycles, drift: drift * 2),
+                .coal:    wave(n, base: 0.0,  amp: 0,   cycles: cycles, drift: 0),
+                .wind:    wave(n, base: 7,    amp: 4,   cycles: cycles, drift: -drift * 2),
+                .solar:   wave(n, base: 3,    amp: 2,   cycles: cycles, drift: -drift),
+                .hydro:   wave(n, base: 0.3,  amp: 0.1, cycles: cycles),
+                .nuclear: wave(n, base: 2.5,  amp: 0.3, cycles: cycles),
+                .biomass: wave(n, base: 1.7,  amp: 0.4, cycles: cycles),
+                .pumped:  wave(n, base: 0,    amp: 0.4, cycles: cycles)
+            ],
+            interconnectors: [
+                .france:      wave(n, base: 2.8,  amp: 1,   cycles: cycles),
+                .norway:      wave(n, base: 1.3,  amp: 0.4, cycles: cycles),
+                .belgium:     wave(n, base: 0.5,  amp: 0.5, cycles: cycles),
+                .denmark:     wave(n, base: 0.4,  amp: 0.4, cycles: cycles),
+                .ireland:     wave(n, base: -0.5, amp: 0.5, cycles: cycles),
+                .netherlands: wave(n, base: 0.3,  amp: 0.6, cycles: cycles)
+            ]
+        )
+    }
+
+    static let timestampFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.calendar = Calendar(identifier: .iso8601)
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(secondsFromGMT: 0)
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXXXX"
+        return f
     }()
 
     static let dayFormatter: DateFormatter = {
@@ -113,10 +117,10 @@ extension Snapshot {
         return f
     }()
 
-    static func wave(_ count: Int, base: Double, amp: Double) -> [Double?] {
+    static func wave(_ count: Int, base: Double, amp: Double, cycles: Double = 1, drift: Double = 0) -> [Double?] {
         (0..<count).map { i in
             let t = Double(i) / Double(max(count - 1, 1))
-            return base + amp * sin(t * .pi * 2)
+            return base + drift * t + amp * sin(t * .pi * 2 * cycles)
         }
     }
 }

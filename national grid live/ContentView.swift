@@ -20,6 +20,10 @@ struct ContentView: View {
                         ProgressView()
                             .padding(.top, 60)
                     }
+
+                    if let snapshot = store.snapshot {
+                        PeriodSection(snapshot: snapshot)
+                    }
                 }
                 .padding(16)
             }

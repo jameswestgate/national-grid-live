@@ -4,6 +4,8 @@ struct Snapshot: Codable, Sendable, Equatable {
     let schemaVersion: Int
     let generated: Date
     let sources: SourceAttributions
+    let day: Series
+    let week: Series
     let year: Series
     let allTime: Series
 
@@ -14,7 +16,7 @@ struct Snapshot: Codable, Sendable, Equatable {
     }
 
     enum Granularity: String, Codable, Sendable {
-        case day, month
+        case halfHour, hour, day, month
     }
 
     struct Series: Codable, Sendable, Equatable {
@@ -31,6 +33,26 @@ struct Snapshot: Codable, Sendable, Equatable {
         let interconnectors: [Interconnector: [Double?]]
 
         var count: Int { dates.count }
+    }
+}
+
+extension Snapshot.Series {
+    var parsedDates: [Date] {
+        let formatter = Self.formatter(for: granularity)
+        return dates.compactMap { formatter.date(from: $0) }
+    }
+
+    private static func formatter(for granularity: Snapshot.Granularity) -> DateFormatter {
+        let f = DateFormatter()
+        f.calendar = Calendar(identifier: .iso8601)
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(secondsFromGMT: 0)
+        switch granularity {
+        case .halfHour, .hour: f.dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXXXX"
+        case .day:             f.dateFormat = "yyyy-MM-dd"
+        case .month:           f.dateFormat = "yyyy-MM"
+        }
+        return f
     }
 }
 

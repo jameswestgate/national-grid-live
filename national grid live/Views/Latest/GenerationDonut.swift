@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct GenerationDonut: View {
-    let live: LiveGrid
+    let generation: Double
+    let demand: Double
+    let fuels: [FuelType: Double]
 
     private static let categoryOrder: [FuelCategory] = [.fossil, .renewable, .other, .storage]
 
@@ -10,7 +12,7 @@ struct GenerationDonut: View {
             FuelType.allCases
                 .filter { $0.category == category }
                 .compactMap { fuel in
-                    guard let gw = live.fuels[fuel], gw > 0 else { return nil }
+                    guard let gw = fuels[fuel], gw > 0 else { return nil }
                     return Slice(value: gw, color: fuel.swatch)
                 }
         }
@@ -18,10 +20,21 @@ struct GenerationDonut: View {
 
     private var innerSlices: [Slice] {
         Self.categoryOrder.compactMap { category in
-            let total = live.categoryTotal(category)
+            let total = categoryTotal(category)
             guard total > 0 else { return nil }
             return Slice(value: total, color: category.bannerColor)
         }
+    }
+
+    private func categoryTotal(_ category: FuelCategory) -> Double {
+        fuels.reduce(into: 0.0) { acc, kv in
+            if kv.key.category == category { acc += kv.value }
+        }
+    }
+
+    private var shareOfDemand: Double {
+        guard demand > 0 else { return 0 }
+        return generation / demand
     }
 
     var body: some View {
@@ -37,10 +50,10 @@ struct GenerationDonut: View {
         VStack(spacing: 2) {
             Text("Generation").font(.appSerif(.callout)).foregroundStyle(.secondary)
             HStack(spacing: 0) {
-                Text(String(format: "%.1f", live.generation)).font(.appSerif(.title3))
-                Text("GW").font(.appSerif(.title3)).foregroundStyle(.tertiary)
+                Text(String(format: "%.1f", generation)).font(.appSerif(.title3))
+                Text("GW").font(.appSerif(.footnote)).foregroundStyle(.tertiary)
             }
-            Text(String(format: "%.1f%%", live.share(live.generation) * 100))
+            Text(String(format: "%.1f%%", shareOfDemand * 100))
                 .font(.appSerif(.callout))
                 .foregroundStyle(.secondary)
         }
@@ -93,7 +106,9 @@ private struct DonutRing: View {
 }
 
 #Preview {
-    GenerationDonut(live: .sample)
+    GenerationDonut(generation: LiveGrid.sample.generation,
+                    demand: LiveGrid.sample.demand,
+                    fuels: LiveGrid.sample.fuels)
         .padding()
         .background(Palette.contentBackground)
         .preferredColorScheme(.dark)

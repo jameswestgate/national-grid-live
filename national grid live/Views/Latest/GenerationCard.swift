@@ -7,8 +7,12 @@ struct GenerationCard: View {
         Card {
             VStack(spacing: 0) {
                 CardHeader(title: "Generation")
-                GenerationDonut(live: live)
-                    .padding(16)
+                GenerationDonut(
+                    generation: live.generation,
+                    demand: live.demand,
+                    fuels: live.fuels
+                )
+                .padding(16)
                 Text("Note: percentages are relative to demand, so will exceed 100% if power is being exported")
                     .font(.appSerif(.footnote))
                     .foregroundStyle(.secondary)
