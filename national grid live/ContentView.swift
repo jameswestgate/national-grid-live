@@ -24,6 +24,17 @@ struct ContentView: View {
                     if let live = store.live, let snapshot = store.snapshot {
                         PeriodSection(live: live, snapshot: snapshot)
                     }
+
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .top, spacing: 16) {
+                            TransitionSection().frame(maxWidth: .infinity)
+                            AboutSection(sources: store.snapshot?.sources).frame(maxWidth: .infinity)
+                        }
+                        VStack(spacing: 16) {
+                            TransitionSection()
+                            AboutSection(sources: store.snapshot?.sources)
+                        }
+                    }
                 }
                 .padding(16)
             }
