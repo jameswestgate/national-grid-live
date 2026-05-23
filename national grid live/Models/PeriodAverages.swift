@@ -24,7 +24,7 @@ struct PeriodAverages: Sendable, Equatable {
         interconnectors.values.reduce(0, +)
     }
 
-    static func from(_ series: Snapshot.Series) -> PeriodAverages {
+    static func from(_ series: TimeSeries) -> PeriodAverages {
         PeriodAverages(
             price:      mean(series.price),
             emissions:  mean(series.emissions),

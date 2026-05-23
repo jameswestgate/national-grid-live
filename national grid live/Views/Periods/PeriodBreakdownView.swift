@@ -73,7 +73,7 @@ struct PeriodBreakdownView: View {
 }
 
 #Preview {
-    PeriodBreakdownView(averages: .from(Snapshot.sample.day))
+    PeriodBreakdownView(averages: .from(LiveData.sample.day))
         .padding()
         .background(Palette.contentBackground)
         .preferredColorScheme(.dark)

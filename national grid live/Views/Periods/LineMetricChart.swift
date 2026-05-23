@@ -76,7 +76,7 @@ struct TimedValue: Identifiable {
 }
 
 #Preview {
-    let series = Snapshot.sample.day
+    let series = LiveData.sample.day
     let dates = series.parsedDates
     let pts = zip(dates, series.price).map { TimedValue(date: $0.0, value: $0.1) }
     return LineMetricChart(title: "Price per MWh", points: pts, lineColor: .white, unitSuffix: "£")

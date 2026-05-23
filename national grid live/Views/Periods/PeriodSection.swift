@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct PeriodSection: View {
+    let live: LiveData
     let snapshot: Snapshot
     @State private var selection: Period = .day
 
@@ -46,10 +47,10 @@ struct PeriodSection: View {
         }
     }
 
-    private func series(for period: Period) -> Snapshot.Series {
+    private func series(for period: Period) -> TimeSeries {
         switch period {
-        case .day:     snapshot.day
-        case .week:    snapshot.week
+        case .day:     live.day
+        case .week:    live.week
         case .year:    snapshot.year
         case .allTime: snapshot.allTime
         }
@@ -73,7 +74,7 @@ struct PeriodSection: View {
 }
 
 #Preview {
-    PeriodSection(snapshot: .sample)
+    PeriodSection(live: .sample, snapshot: .sample)
         .padding()
         .background(Palette.pageBackground)
         .preferredColorScheme(.dark)

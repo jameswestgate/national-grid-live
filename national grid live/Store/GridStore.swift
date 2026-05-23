@@ -10,15 +10,15 @@ final class GridStore {
         case failed(String)
     }
 
-    private(set) var live: LiveGrid?
+    private(set) var live: LiveData?
     private(set) var snapshot: Snapshot?
     private(set) var liveState: LoadState = .idle
     private(set) var snapshotState: LoadState = .idle
 
-    private let liveProvider: any LiveGridProvider
+    private let liveProvider: any LiveDataProvider
     private let snapshotProvider: any SnapshotProvider
 
-    init(live: any LiveGridProvider, snapshot: any SnapshotProvider) {
+    init(live: any LiveDataProvider, snapshot: any SnapshotProvider) {
         self.liveProvider = live
         self.snapshotProvider = snapshot
     }

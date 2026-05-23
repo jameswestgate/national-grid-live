@@ -14,15 +14,15 @@ struct ContentView: View {
                         .padding(.horizontal)
 
                     if let live = store.live {
-                        StatusBarView(live: live)
-                        LatestSection(live: live)
+                        StatusBarView(live: live.current)
+                        LatestSection(live: live.current)
                     } else {
                         ProgressView()
                             .padding(.top, 60)
                     }
 
-                    if let snapshot = store.snapshot {
-                        PeriodSection(snapshot: snapshot)
+                    if let live = store.live, let snapshot = store.snapshot {
+                        PeriodSection(live: live, snapshot: snapshot)
                     }
                 }
                 .padding(16)

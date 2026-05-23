@@ -75,7 +75,7 @@ struct PeriodStatsView: View {
 }
 
 #Preview {
-    PeriodStatsView(period: .day, averages: .from(Snapshot.sample.day))
+    PeriodStatsView(period: .day, averages: .from(LiveData.sample.day))
         .padding()
         .background(Palette.contentBackground)
         .preferredColorScheme(.dark)

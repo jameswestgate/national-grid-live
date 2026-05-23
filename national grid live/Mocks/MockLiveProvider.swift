@@ -1,13 +1,13 @@
 import Foundation
 
-struct MockLiveProvider: LiveGridProvider {
-    let sample: LiveGrid
+struct MockLiveProvider: LiveDataProvider {
+    let sample: LiveData
 
-    init(sample: LiveGrid = .sample) {
+    init(sample: LiveData = .sample) {
         self.sample = sample
     }
 
-    func fetch() async throws -> LiveGrid {
+    func fetch() async throws -> LiveData {
         try? await Task.sleep(for: .milliseconds(200))
         return sample
     }
@@ -40,4 +40,26 @@ extension LiveGrid {
             .netherlands: -0.46
         ]
     )
+}
+
+extension LiveData {
+    static let sample: LiveData = {
+        let now = Date.now
+        let cal = Calendar(identifier: .iso8601)
+
+        let dayDates = (0..<48).map { offset -> String in
+            let date = cal.date(byAdding: .minute, value: -30 * (47 - offset), to: now)!
+            return MockWaveform.timestampFormatter.string(from: date)
+        }
+        let weekDates = (0..<168).map { offset -> String in
+            let date = cal.date(byAdding: .hour, value: -(167 - offset), to: now)!
+            return MockWaveform.timestampFormatter.string(from: date)
+        }
+
+        return LiveData(
+            current: .sample,
+            day:  MockWaveform.buildSeries(dates: dayDates,  granularity: .halfHour, cycles: 1),
+            week: MockWaveform.buildSeries(dates: weekDates, granularity: .hour,     cycles: 7)
+        )
+    }()
 }

@@ -1,7 +1,7 @@
 import Foundation
 
-protocol LiveGridProvider: Sendable {
-    func fetch() async throws -> LiveGrid
+protocol LiveDataProvider: Sendable {
+    func fetch() async throws -> LiveData
 }
 
 protocol SnapshotProvider: Sendable {
