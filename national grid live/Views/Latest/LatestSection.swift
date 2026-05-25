@@ -135,7 +135,7 @@ struct LatestSection: View {
                 SourceEntry(
                     id: "battery",
                     label: "Battery storage",
-                    color: Color(red: 0.55, green: 0.40, blue: 0.78),
+                    color: Color(.systemPurple),
                     valueGW: nil,
                     percentOfDemand: nil
                 )

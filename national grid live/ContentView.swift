@@ -9,8 +9,10 @@ struct ContentView: View {
             Tab("Historic", systemImage: "chart.xyaxis.line") {
                 HistoricScreen()
             }
+            Tab("About", systemImage: "info.circle", role: .search) {
+                AboutScreen()
+            }
         }
-        .tabBarMinimizeBehavior(.onScrollDown)
     }
 }
 

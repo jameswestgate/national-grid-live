@@ -4,39 +4,29 @@ struct HistoricScreen: View {
     @Environment(GridStore.self) private var store
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    if let message = snapshotFailureMessage {
-                        OfflineBanner(message: message) {
-                            Task { await store.refresh() }
-                        }
-                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Historic")
+                    .font(.largeTitle.bold())
+                    .padding(.horizontal, 4)
 
-                    if let live = store.live, let snapshot = store.snapshot {
-                        PeriodSection(live: live, snapshot: snapshot)
-                    } else {
-                        ProgressView()
-                            .padding(.top, 60)
-                    }
-
-                    ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .top, spacing: 16) {
-                            TransitionSection().frame(maxWidth: .infinity)
-                            AboutSection(sources: store.snapshot?.sources).frame(maxWidth: .infinity)
-                        }
-                        VStack(spacing: 16) {
-                            TransitionSection()
-                            AboutSection(sources: store.snapshot?.sources)
-                        }
+                if let message = snapshotFailureMessage {
+                    OfflineBanner(message: message) {
+                        Task { await store.refresh() }
                     }
                 }
-                .padding(16)
+
+                if let live = store.live, let snapshot = store.snapshot {
+                    PeriodSection(live: live, snapshot: snapshot)
+                } else {
+                    ProgressView()
+                        .padding(.top, 60)
+                }
             }
-            .background(Palette.pageBackground.ignoresSafeArea())
-            .refreshable { await store.refresh() }
-            .navigationTitle("Historic")
+            .padding(16)
         }
+        .background(Palette.pageBackground.ignoresSafeArea())
+        .refreshable { await store.refresh() }
     }
 
     private var snapshotFailureMessage: String? {

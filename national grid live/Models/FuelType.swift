@@ -27,14 +27,14 @@ enum FuelType: String, CaseIterable, Codable, Sendable, Hashable {
 
     var swatch: Color {
         switch self {
-        case .gas: Color(red: 0.93, green: 0.66, blue: 0.40)
-        case .coal: Color(red: 0.76, green: 0.32, blue: 0.40)
-        case .wind: Color(red: 0.56, green: 0.78, blue: 0.36)
-        case .solar: Color(red: 0.93, green: 0.79, blue: 0.20)
-        case .hydro: Color(red: 0.30, green: 0.74, blue: 0.66)
-        case .nuclear: Color(red: 0.27, green: 0.56, blue: 0.78)
-        case .biomass: Color(red: 0.31, green: 0.36, blue: 0.66)
-        case .pumped: Color(red: 0.30, green: 0.50, blue: 0.78)
+        case .coal:    Color(.systemRed)
+        case .gas:     Color(.systemOrange)
+        case .solar:   Color(.systemYellow)
+        case .wind:    Color(.systemMint)
+        case .hydro:   Color(.systemTeal)
+        case .nuclear: Color(.systemCyan)
+        case .biomass: Color(.systemIndigo)
+        case .pumped:  Color(.systemBlue)
         }
     }
 }
@@ -53,10 +53,10 @@ enum FuelCategory: String, CaseIterable, Sendable, Hashable {
 
     var bannerColor: Color {
         switch self {
-        case .fossil: Color(red: 0.80, green: 0.27, blue: 0.33)
-        case .renewable: Color(red: 0.36, green: 0.71, blue: 0.36)
-        case .other: Color(red: 0.13, green: 0.47, blue: 0.80)
-        case .storage: Color(white: 0.40)
+        case .fossil: Color(.systemRed)
+        case .renewable: Color(.systemGreen)
+        case .other: Color(.systemBlue)
+        case .storage: Color(.systemGray)
         }
     }
 }
@@ -68,12 +68,12 @@ enum Interconnector: String, CaseIterable, Codable, Sendable, Hashable {
 
     var swatch: Color {
         switch self {
-        case .france: Color(red: 0.93, green: 0.66, blue: 0.40)
-        case .norway: Color(red: 0.30, green: 0.74, blue: 0.66)
-        case .belgium: Color(red: 0.78, green: 0.42, blue: 0.78)
-        case .denmark: Color(red: 0.93, green: 0.58, blue: 0.58)
-        case .ireland: Color(red: 0.93, green: 0.79, blue: 0.20)
-        case .netherlands: Color(red: 0.56, green: 0.78, blue: 0.36)
+        case .france:      Color(.systemOrange)
+        case .norway:      Color(.systemTeal)
+        case .belgium:     Color(.systemPurple)
+        case .denmark:     Color(.systemPink)
+        case .ireland:     Color(.systemYellow)
+        case .netherlands: Color(.systemGreen)
         }
     }
 }
