@@ -10,15 +10,15 @@ struct OfflineBanner: View {
                 .foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 2) {
                 Text("Couldn't refresh")
-                    .font(.appSerif(.callout, weight: .semibold))
+                    .font(.callout.weight(.semibold))
                 Text(message)
-                    .font(.appSerif(.footnote))
+                    .font(.footnote)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
             Spacer(minLength: 8)
             Button("Retry", action: onRetry)
-                .font(.appSerif(.footnote, weight: .semibold))
+                .font(.footnote.weight(.semibold))
                 .buttonStyle(.borderedProminent)
                 .tint(.orange)
                 .controlSize(.small)

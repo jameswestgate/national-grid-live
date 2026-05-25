@@ -48,18 +48,26 @@ struct GenerationDonut: View {
     }
 
     private var centerLabel: some View {
-        VStack(spacing: 2) {
-            Text("Generation").font(.appSerif(.callout)).foregroundStyle(.secondary)
-            HStack(spacing: 0) {
-                Text(String(format: "%.1f", generation)).font(.appSerif(.title3))
-                Text("GW").font(.appSerif(.footnote)).foregroundStyle(.tertiary)
+        VStack(spacing: 1) {
+            Text("Generation")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text(String(format: "%.1f", generation))
+                    .font(.title3.weight(.bold).monospacedDigit())
+                Text("GW")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
             Text(String(format: "%.1f%%", shareOfDemand * 100))
-                .font(.appSerif(.callout))
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Text("of demand")
+                .font(.caption2)
                 .foregroundStyle(.secondary)
         }
         .multilineTextAlignment(.center)
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 8)
     }
 
     struct Slice {

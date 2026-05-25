@@ -10,17 +10,13 @@ struct AboutSection: View {
                 VStack(alignment: .leading, spacing: 14) {
                     subhead("Data")
                     Text("Live data is fetched directly from three public APIs. Historical aggregates are served by an open backfill snapshot.")
-                        .font(.appSerif(.body))
+                        .font(.body)
 
                     sourceLines
 
                     subhead("Original design")
                     Text("Inspired by *National Grid: Live* by Kate Morley (grid.iamkate.com), released under CC0 1.0 Universal.")
-                        .font(.appSerif(.body))
-
-                    subhead("Typography")
-                    Text("Source Serif 4 by Adobe, released under the SIL Open Font License 1.1.")
-                        .font(.appSerif(.body))
+                        .font(.body)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
@@ -30,7 +26,7 @@ struct AboutSection: View {
 
     private func subhead(_ text: String) -> some View {
         Text(text)
-            .font(.appSerif(.headline, weight: .semibold))
+            .font(.headline)
             .padding(.top, 6)
     }
 
@@ -52,10 +48,10 @@ struct AboutSection: View {
     private func bullet(_ text: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text("·")
-                .font(.appSerif(.body, weight: .bold))
+                .font(.body.bold())
                 .foregroundStyle(.secondary)
             Text(text)
-                .font(.appSerif(.footnote))
+                .font(.footnote)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }

@@ -22,7 +22,7 @@ struct PeriodSelector: View {
                 Text(period.displayName)
                 Text(period.shortName)
             }
-            .font(.appSerif(.headline, weight: .semibold))
+            .font(.headline)
             .foregroundStyle(Palette.headingText)
             .lineLimit(1)
             .frame(maxWidth: .infinity)

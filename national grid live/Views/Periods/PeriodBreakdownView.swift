@@ -69,7 +69,7 @@ struct PeriodBreakdownView: View {
     private func section<Rows: View>(title: String, @ViewBuilder rows: () -> Rows) -> some View {
         VStack(spacing: 0) {
             Text(title)
-                .font(.appSerif(.headline, weight: .semibold))
+                .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.vertical, 10)
             VStack(spacing: 0) {

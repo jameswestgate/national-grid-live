@@ -51,13 +51,13 @@ struct PeriodStatsView: View {
     private func column(label: String, value: String, unit: String = "") -> some View {
         VStack(spacing: 4) {
             Text(label)
-                .font(.appSerif(.callout))
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
-            HStack(spacing: 0) {
-                Text(value).font(.appSerif(.title3))
+            HStack(alignment: .firstTextBaseline, spacing: 1) {
+                Text(value).font(.title2.weight(.bold).monospacedDigit())
                 if !unit.isEmpty {
-                    Text(unit).font(.appSerif(.footnote)).foregroundStyle(.tertiary)
+                    Text(unit).font(.caption2).foregroundStyle(.secondary)
                 }
             }
             .lineLimit(1)
@@ -68,7 +68,7 @@ struct PeriodStatsView: View {
 
     private func operatorLabel(_ symbol: String) -> some View {
         Text(symbol)
-            .font(.appSerif(.title2))
+            .font(.title2)
             .foregroundStyle(.secondary)
             .padding(.bottom, 2)
     }

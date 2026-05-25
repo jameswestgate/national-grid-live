@@ -7,8 +7,6 @@ struct national_grid_liveApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        FontRegistry.registerBundledFonts()
-        NavBarStyle.configure()
         let store = AppConfig.default.makeStore()
         store.primeFromCache()
         _store = State(initialValue: store)
@@ -19,7 +17,6 @@ struct national_grid_liveApp: App {
         WindowGroup {
             ContentView()
                 .environment(store)
-                .font(.appSerif(.body))
                 .onChange(of: scenePhase, initial: true) { _, phase in
                     switch phase {
                     case .active:    scheduler.start()

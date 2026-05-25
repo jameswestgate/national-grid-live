@@ -8,12 +8,12 @@ struct TransitionSection: View {
                 VStack(alignment: .leading, spacing: 14) {
                     ForEach(Self.paragraphs, id: \.self) { p in
                         Text(p)
-                            .font(.appSerif(.body))
+                            .font(.body)
                             .foregroundStyle(Palette.contentText)
                     }
 
                     Text("Wind power records are set regularly")
-                        .font(.appSerif(.headline, weight: .semibold))
+                        .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top, 6)
 
@@ -58,11 +58,11 @@ struct TransitionSection: View {
     private func row(power: String, date: String, isHeader: Bool = false, stripe: Bool = false) -> some View {
         HStack {
             Text(power)
-                .font(.appSerif(.callout, weight: isHeader ? .semibold : .regular))
+                .font(.callout.weight(isHeader ? .semibold : .regular))
                 .frame(width: 80, alignment: .leading)
                 .monospacedDigit()
             Text(date)
-                .font(.appSerif(.callout, weight: isHeader ? .semibold : .regular))
+                .font(.callout.weight(isHeader ? .semibold : .regular))
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 12)

@@ -12,7 +12,7 @@ struct LineMetricChart: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(title)
-                .font(.appSerif(.callout))
+                .font(.callout)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -39,7 +39,7 @@ struct LineMetricChart: View {
                     AxisValueLabel {
                         if let d = value.as(Double.self) {
                             Text(yLabel(d))
-                                .font(.appSerif(.caption))
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -71,28 +71,28 @@ enum ChartAxis {
             AxisMarks(values: .stride(by: .hour, count: 6)) { _ in
                 AxisGridLine().foregroundStyle(Palette.graphLine)
                 AxisValueLabel(format: .dateTime.hour(.defaultDigits(amPM: .abbreviated)).minute())
-                    .font(.appSerif(.caption))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         case .hour:
             AxisMarks(values: .stride(by: .day, count: 1)) { _ in
                 AxisGridLine().foregroundStyle(Palette.graphLine)
                 AxisValueLabel(format: .dateTime.weekday(.abbreviated))
-                    .font(.appSerif(.caption))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         case .day:
             AxisMarks(values: .stride(by: .month, count: 3)) { _ in
                 AxisGridLine().foregroundStyle(Palette.graphLine)
                 AxisValueLabel(format: .dateTime.day(.twoDigits).month(.twoDigits).year())
-                    .font(.appSerif(.caption))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         case .month:
             AxisMarks(values: .stride(by: .year, count: 2)) { _ in
                 AxisGridLine().foregroundStyle(Palette.graphLine)
                 AxisValueLabel(format: .dateTime.year())
-                    .font(.appSerif(.caption))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }

@@ -43,15 +43,19 @@ struct StatusBarView: View {
     private func kpi(label: String, value: String, unit: String, prefix: String = "") -> some View {
         VStack(spacing: 6) {
             Text(label)
-                .font(.appSerif(.callout))
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
-            HStack(spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 1) {
                 if !prefix.isEmpty {
-                    Text(prefix).font(.appSerif(.title3))
+                    Text(prefix)
+                        .font(.title2.weight(.bold).monospacedDigit())
+                        .foregroundStyle(Palette.dataText)
                 }
-                Text(value).font(.appSerif(.title3))
-                Text(unit).font(.appSerif(.footnote)).foregroundStyle(.tertiary)
+                Text(value)
+                    .font(.title2.weight(.bold).monospacedDigit())
+                    .foregroundStyle(Palette.dataText)
+                Text(unit).font(.caption2).foregroundStyle(.secondary)
             }
             .lineLimit(1)
         }
@@ -61,7 +65,7 @@ struct StatusBarView: View {
 
     private func operatorLabel(_ symbol: String) -> some View {
         Text(symbol)
-            .font(.appSerif(.title2))
+            .font(.title2)
             .foregroundStyle(.secondary)
             .padding(.bottom, 2)
     }

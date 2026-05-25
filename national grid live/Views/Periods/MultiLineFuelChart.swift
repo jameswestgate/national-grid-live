@@ -12,7 +12,7 @@ struct MultiLineFuelChart: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(title)
-                .font(.appSerif(.callout))
+                .font(.callout)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -38,7 +38,7 @@ struct MultiLineFuelChart: View {
                     AxisValueLabel {
                         if let d = value.as(Double.self) {
                             Text("\(Int(d))GW")
-                                .font(.appSerif(.caption))
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }

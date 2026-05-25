@@ -19,7 +19,7 @@ struct SourceRow: View {
                 .frame(width: 60, alignment: .trailing)
                 .monospacedDigit()
         }
-        .font(.appSerif(.callout))
+        .font(.callout)
         .padding(.horizontal, 14)
         .padding(.vertical, 6)
     }

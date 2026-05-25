@@ -6,30 +6,62 @@ struct GenerationCard: View {
 
     var body: some View {
         Card {
-            VStack(spacing: 0) {
-                CardHeader(title: "Generation")
-                GenerationDonut(
-                    generation: live.generation,
-                    demand: live.demand,
-                    fuels: live.fuels,
-                    size: sizeClass == .regular ? 340 : 280
-                )
-                .padding(16)
-                Text("Note: percentages are relative to demand, so will exceed 100% if power is being exported")
-                    .font(.appSerif(.footnote))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
+            if sizeClass == .regular {
+                ipadLayout
+                    .padding(16)
+            } else {
+                iphoneLayout
+                    .padding(16)
             }
+        }
+    }
+
+    private var iphoneLayout: some View {
+        GenerationDonut(
+            generation: live.generation,
+            demand: live.demand,
+            fuels: live.fuels,
+            size: 280
+        )
+        .frame(maxWidth: .infinity)
+    }
+
+    private var ipadLayout: some View {
+        HStack(alignment: .center, spacing: 16) {
+            GenerationDonut(
+                generation: live.generation,
+                demand: live.demand,
+                fuels: live.fuels,
+                size: 180
+            )
+            legend
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var legend: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            legendRow(style: .fossil, name: "Fossil Fuels")
+            legendRow(style: .renewable, name: "Renewables")
+            legendRow(style: .other, name: "Other Sources")
+        }
+    }
+
+    private func legendRow(style: CategoryStyle, name: String) -> some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(style.tint)
+                .frame(width: 10, height: 10)
+            Text(name)
+                .font(.callout)
+                .foregroundStyle(.primary)
+                .lineLimit(1)
         }
     }
 }
 
 #Preview {
     GenerationCard(live: .sample)
-        .frame(width: 360)
         .padding()
         .background(Palette.pageBackground)
-        .preferredColorScheme(.dark)
 }
