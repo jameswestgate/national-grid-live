@@ -17,8 +17,11 @@ struct LiveScreen: View {
                 }
 
                 if let live = store.live {
-                    StatusBarView(live: live.current)
-                    LatestSection(live: live.current)
+                    StatusBarView(
+                        stats: live.current.asAverages,
+                        headline: ("Time", Self.timeFormatter.string(from: live.current.asOf))
+                    )
+                    LatestSection(stats: live.current.asAverages)
                 } else {
                     ProgressView()
                         .padding(.top, 60)
@@ -34,6 +37,14 @@ struct LiveScreen: View {
         if case .failed(let m) = store.liveState, store.live != nil { return m }
         return nil
     }
+
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "h:mma"
+        f.amSymbol = "am"
+        f.pmSymbol = "pm"
+        return f
+    }()
 }
 
 #Preview {

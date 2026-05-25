@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct GenerationCard: View {
-    let live: LiveGrid
+    let generation: Double
+    let demand: Double
+    let fuels: [FuelType: Double]
     @Environment(\.horizontalSizeClass) private var sizeClass
 
     var body: some View {
@@ -18,9 +20,9 @@ struct GenerationCard: View {
 
     private var iphoneLayout: some View {
         GenerationDonut(
-            generation: live.generation,
-            demand: live.demand,
-            fuels: live.fuels,
+            generation: generation,
+            demand: demand,
+            fuels: fuels,
             size: 280
         )
         .frame(maxWidth: .infinity)
@@ -29,9 +31,9 @@ struct GenerationCard: View {
     private var ipadLayout: some View {
         HStack(alignment: .center, spacing: 16) {
             GenerationDonut(
-                generation: live.generation,
-                demand: live.demand,
-                fuels: live.fuels,
+                generation: generation,
+                demand: demand,
+                fuels: fuels,
                 size: 180
             )
             legend
@@ -61,7 +63,11 @@ struct GenerationCard: View {
 }
 
 #Preview {
-    GenerationCard(live: .sample)
-        .padding()
-        .background(Palette.pageBackground)
+    GenerationCard(
+        generation: LiveGrid.sample.generation,
+        demand: LiveGrid.sample.demand,
+        fuels: LiveGrid.sample.fuels
+    )
+    .padding()
+    .background(Palette.pageBackground)
 }

@@ -24,4 +24,16 @@ struct LiveGrid: Codable, Sendable, Equatable {
     var interconnectorsTotal: Double {
         interconnectors.values.reduce(0, +)
     }
+
+    var asAverages: PeriodAverages {
+        PeriodAverages(
+            price: price,
+            emissions: emissions,
+            demand: demand,
+            generation: generation,
+            transfers: transfers,
+            fuels: fuels,
+            interconnectors: interconnectors
+        )
+    }
 }

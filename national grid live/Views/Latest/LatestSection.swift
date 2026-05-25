@@ -1,7 +1,10 @@
 import SwiftUI
 
+/// Renders the Generation / Interconnectors / Storage sections.
+/// Source-agnostic — takes a `PeriodAverages` so the same view powers the Live
+/// snapshot and the historic period averages.
 struct LatestSection: View {
-    let live: LiveGrid
+    let stats: PeriodAverages
     @State private var width: CGFloat = 0
 
     var body: some View {
@@ -59,78 +62,82 @@ struct LatestSection: View {
     }
 
     private var generationCard: some View {
-        GenerationCard(live: live)
+        GenerationCard(
+            generation: stats.generation,
+            demand: stats.demand,
+            fuels: stats.fuels
+        )
     }
 
     private var fossilsCard: some View {
-        let total = live.categoryTotal(.fossil)
+        let total = stats.categoryTotal(.fossil)
         return CategoryCard(
             style: .fossil,
             name: "Fossil Fuels",
             totalGW: total,
-            percentOfDemand: live.share(total),
+            percentOfDemand: stats.share(total),
             entries: entries(for: [.coal, .gas])
         )
     }
 
     private var renewablesCard: some View {
-        let total = live.categoryTotal(.renewable)
+        let total = stats.categoryTotal(.renewable)
         return CategoryCard(
             style: .renewable,
             name: "Renewables",
             totalGW: total,
-            percentOfDemand: live.share(total),
+            percentOfDemand: stats.share(total),
             entries: entries(for: [.solar, .wind, .hydro])
         )
     }
 
     private var othersCard: some View {
-        let total = live.categoryTotal(.other)
+        let total = stats.categoryTotal(.other)
         return CategoryCard(
             style: .other,
             name: "Other Sources",
             totalGW: total,
-            percentOfDemand: live.share(total),
+            percentOfDemand: stats.share(total),
             entries: entries(for: [.nuclear, .biomass])
         )
     }
 
     private var interconnectorsCard: some View {
-        let total = live.interconnectorsTotal
+        let total = stats.interconnectorsTotal
         return CategoryCard(
             style: .interconnectors,
             name: nil,
             totalGW: total,
-            percentOfDemand: live.share(total),
+            percentOfDemand: stats.share(total),
             entries: Interconnector.allCases
                 .sorted { $0.displayName < $1.displayName }
                 .map { ic in
-                    let gw = live.interconnectors[ic] ?? 0
+                    let gw = stats.interconnectors[ic] ?? 0
                     return SourceEntry(
                         id: ic.rawValue,
                         label: ic.displayName,
                         color: ic.swatch,
                         valueGW: gw,
-                        percentOfDemand: live.share(gw)
+                        percentOfDemand: stats.share(gw)
                     )
                 }
         )
     }
 
     private var storageCard: some View {
-        let pumped = live.fuels[.pumped] ?? 0
+        let pumped = stats.fuels[.pumped] ?? 0
         return CategoryCard(
             style: .storage,
             name: nil,
             totalGW: pumped,
-            percentOfDemand: live.share(pumped),
+            percentOfDemand: stats.share(pumped),
             entries: [
                 SourceEntry(
                     id: "pumped",
                     label: "Pumped storage",
                     color: FuelType.pumped.swatch,
                     valueGW: pumped,
-                    percentOfDemand: live.share(pumped)
+                    percentOfDemand: stats.share(pumped)
                 ),
                 SourceEntry(
                     id: "battery",
@@ -145,13 +152,13 @@ struct LatestSection: View {
 
     private func entries(for fuels: [FuelType]) -> [SourceEntry] {
         fuels.map { fuel in
-            let gw = live.fuels[fuel] ?? 0
+            let gw = stats.fuels[fuel] ?? 0
             return SourceEntry(
                 id: fuel.rawValue,
                 label: fuel.displayName,
                 color: fuel.swatch,
                 valueGW: gw,
-                percentOfDemand: live.share(gw)
+                percentOfDemand: stats.share(gw)
             )
         }
     }
@@ -168,13 +175,7 @@ struct LatestSection: View {
 }
 
 #Preview("iPhone") {
-    LatestSection(live: .sample)
-        .padding()
-        .background(Palette.pageBackground)
-}
-
-#Preview("iPad") {
-    LatestSection(live: .sample)
+    LatestSection(stats: LiveGrid.sample.asAverages)
         .padding()
         .background(Palette.pageBackground)
 }

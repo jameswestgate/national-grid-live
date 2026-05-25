@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct StatusBarView: View {
-    let live: LiveGrid
+    let stats: PeriodAverages
+    /// First KPI cell — pass ("Time", "1:25pm") for Live, ("Period", "Past day") for Historic.
+    let headline: (label: String, value: String)
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
@@ -19,9 +21,9 @@ struct StatusBarView: View {
     private var leftCard: some View {
         Card {
             HStack(spacing: 0) {
-                kpi(label: "Time", value: Self.timeFormatter.string(from: live.asOf), unit: "")
-                kpi(label: "Price", value: String(format: "%.2f", live.price), unit: "/MWh", prefix: "£")
-                kpi(label: "Emissions", value: String(format: "%.0f", live.emissions), unit: "g/kWh")
+                kpi(label: headline.label, value: headline.value, unit: "")
+                kpi(label: "Price", value: priceText, unit: "/MWh", prefix: "£")
+                kpi(label: "Emissions", value: emissionsText, unit: "g/kWh")
             }
             .padding(.vertical, 14)
         }
@@ -30,14 +32,24 @@ struct StatusBarView: View {
     private var rightCard: some View {
         Card {
             HStack(spacing: 0) {
-                kpi(label: "Demand", value: String(format: "%.1f", live.demand), unit: "GW")
+                kpi(label: "Demand", value: String(format: "%.1f", stats.demand), unit: "GW")
                 operatorLabel("=")
-                kpi(label: "Generation", value: String(format: "%.1f", live.generation), unit: "GW")
+                kpi(label: "Generation", value: String(format: "%.1f", stats.generation), unit: "GW")
                 operatorLabel("+")
-                kpi(label: "Transfers", value: String(format: "%.1f", live.transfers), unit: "GW")
+                kpi(label: "Transfers", value: String(format: "%.1f", stats.transfers), unit: "GW")
             }
             .padding(.vertical, 14)
         }
+    }
+
+    private var priceText: String {
+        guard let p = stats.price else { return "—" }
+        return String(format: "%.2f", p)
+    }
+
+    private var emissionsText: String {
+        guard let e = stats.emissions else { return "—" }
+        return String(format: "%.0f", e)
     }
 
     private func kpi(label: String, value: String, unit: String, prefix: String = "") -> some View {
@@ -69,19 +81,16 @@ struct StatusBarView: View {
             .foregroundStyle(.secondary)
             .padding(.bottom, 2)
     }
-
-    private static let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "h:mma"
-        f.amSymbol = "am"
-        f.pmSymbol = "pm"
-        return f
-    }()
 }
 
-#Preview("iPhone") {
-    StatusBarView(live: .sample)
+#Preview("Live") {
+    StatusBarView(stats: LiveGrid.sample.asAverages, headline: ("Time", "1:25pm"))
         .padding()
         .background(Palette.pageBackground)
-        .preferredColorScheme(.dark)
+}
+
+#Preview("Historic") {
+    StatusBarView(stats: PeriodAverages.from(LiveData.sample.day), headline: ("Period", "Past day"))
+        .padding()
+        .background(Palette.pageBackground)
 }
