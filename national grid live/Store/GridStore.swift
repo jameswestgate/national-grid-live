@@ -23,6 +23,19 @@ final class GridStore {
         self.snapshotProvider = snapshot
     }
 
+    /// Read cached values on launch so the UI can render immediately
+    /// before any network refresh completes.
+    func primeFromCache() {
+        if let cached = liveProvider.cachedValue() {
+            self.live = cached
+            self.liveState = .loaded
+        }
+        if let cached = snapshotProvider.cachedValue() {
+            self.snapshot = cached
+            self.snapshotState = .loaded
+        }
+    }
+
     func refresh() async {
         async let liveTask: Void = loadLive()
         async let snapshotTask: Void = loadSnapshotIfNeeded()
@@ -35,12 +48,12 @@ final class GridStore {
             live = try await liveProvider.fetch()
             liveState = .loaded
         } catch {
+            // Keep cached `live` visible; mark state as failed so UI can show a banner.
             liveState = .failed(error.localizedDescription)
         }
     }
 
     func loadSnapshotIfNeeded() async {
-        guard snapshot == nil else { return }
         snapshotState = .loading
         do {
             snapshot = try await snapshotProvider.fetch()

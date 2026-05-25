@@ -1,6 +1,6 @@
 import Foundation
 
-struct LiveGrid: Sendable, Equatable {
+struct LiveGrid: Codable, Sendable, Equatable {
     let asOf: Date
     let price: Double
     let emissions: Double

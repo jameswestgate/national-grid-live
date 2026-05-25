@@ -4,6 +4,7 @@ struct GenerationDonut: View {
     let generation: Double
     let demand: Double
     let fuels: [FuelType: Double]
+    var size: CGFloat = 280
 
     private static let categoryOrder: [FuelCategory] = [.fossil, .renewable, .other, .storage]
 
@@ -43,7 +44,7 @@ struct GenerationDonut: View {
             DonutRing(slices: innerSlices, innerRadiusRatio: 0.54, outerRadiusRatio: 0.76, angularInset: .degrees(0.6))
             centerLabel
         }
-        .frame(width: 280, height: 280)
+        .frame(width: size, height: size)
     }
 
     private var centerLabel: some View {

@@ -14,6 +14,16 @@ struct ContentView: View {
                         .padding(.horizontal)
 
                     if let live = store.live {
+                        UpdatedAgoLabel(asOf: live.current.asOf)
+                    }
+
+                    if let message = failureMessage {
+                        OfflineBanner(message: message) {
+                            Task { await store.refresh() }
+                        }
+                    }
+
+                    if let live = store.live {
                         StatusBarView(live: live.current)
                         LatestSection(live: live.current)
                     } else {
@@ -51,8 +61,13 @@ struct ContentView: View {
                     .disabled(store.liveState == .loading)
                 }
             }
-            .task { await store.refresh() }
         }
+    }
+
+    private var failureMessage: String? {
+        if case .failed(let m) = store.liveState, store.live != nil { return m }
+        if case .failed(let m) = store.snapshotState, store.snapshot != nil { return m }
+        return nil
     }
 }
 

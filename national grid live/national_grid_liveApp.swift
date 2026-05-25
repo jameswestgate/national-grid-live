@@ -2,10 +2,17 @@ import SwiftUI
 
 @main
 struct national_grid_liveApp: App {
-    @State private var store = GridStore.mock()
+    @State private var store: GridStore
+    @State private var scheduler: RefreshScheduler
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         FontRegistry.registerBundledFonts()
+        NavBarStyle.configure()
+        let store = AppConfig.default.makeStore()
+        store.primeFromCache()
+        _store = State(initialValue: store)
+        _scheduler = State(initialValue: RefreshScheduler(store: store))
     }
 
     var body: some Scene {
@@ -13,6 +20,13 @@ struct national_grid_liveApp: App {
             ContentView()
                 .environment(store)
                 .font(.appSerif(.body))
+                .onChange(of: scenePhase, initial: true) { _, phase in
+                    switch phase {
+                    case .active:    scheduler.start()
+                    case .inactive, .background: scheduler.stop()
+                    @unknown default: break
+                    }
+                }
         }
     }
 }

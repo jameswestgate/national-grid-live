@@ -150,6 +150,7 @@ struct LatestSection: View {
             banner: FuelCategory.storage.bannerColor
         ) {
             SourceRow(label: "Pumped storage", swatch: FuelType.pumped.swatch, valueGW: pumped, percent: live.share(pumped), outlinedSwatch: true)
+            SourceRow(label: "Battery storage", swatch: Color(red: 0.55, green: 0.40, blue: 0.78), valueGW: nil, percent: nil, outlinedSwatch: true)
         }
     }
 }

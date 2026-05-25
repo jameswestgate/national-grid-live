@@ -4,6 +4,7 @@ struct PeriodSection: View {
     let live: LiveData
     let snapshot: Snapshot
     @State private var selection: Period = .day
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     var body: some View {
         Card {
@@ -27,7 +28,8 @@ struct PeriodSection: View {
             GenerationDonut(
                 generation: averages.generation,
                 demand: averages.demand,
-                fuels: averages.fuels
+                fuels: averages.fuels,
+                size: sizeClass == .regular ? 340 : 280
             )
 
             PeriodBreakdownView(averages: averages)
@@ -39,10 +41,20 @@ struct PeriodSection: View {
                       lineColor: .white, unitSuffix: "g")
                 chart("Demand", values: series.demand, dates: dates,
                       lineColor: .white, unitSuffix: "GW")
-                chart("Generation", values: series.generation, dates: dates,
-                      lineColor: Palette.accent, unitSuffix: "GW")
-                chart("Transfers", values: series.transfers, dates: dates,
-                      lineColor: Palette.accent, unitSuffix: "GW", includeZero: true)
+
+                MultiLineFuelChart(
+                    title: "Generation",
+                    dates: dates,
+                    fuels: series.fuels,
+                    granularity: series.granularity
+                )
+
+                MultiLineInterconnectorChart(
+                    title: "Transfers",
+                    dates: dates,
+                    interconnectors: series.interconnectors,
+                    granularity: series.granularity
+                )
             }
         }
     }
@@ -68,7 +80,8 @@ struct PeriodSection: View {
             points: points,
             lineColor: lineColor,
             unitSuffix: unitSuffix,
-            includeZero: includeZero
+            includeZero: includeZero,
+            granularity: series(for: selection).granularity
         )
     }
 }

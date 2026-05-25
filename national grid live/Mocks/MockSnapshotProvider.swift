@@ -14,21 +14,8 @@ struct MockSnapshotProvider: SnapshotProvider {
 }
 
 extension Snapshot {
-    static let sample: Snapshot = makeSample()
-
-    private static func makeSample() -> Snapshot {
+    static let sample: Snapshot = {
         let now = Date.now
-        let cal = Calendar(identifier: .iso8601)
-
-        let yearDates = (0..<365).map { offset -> String in
-            let date = cal.date(byAdding: .day, value: -(364 - offset), to: now)!
-            return MockWaveform.dayFormatter.string(from: date)
-        }
-        let monthDates = (0..<60).map { offset -> String in
-            let date = cal.date(byAdding: .month, value: -(59 - offset), to: now)!
-            return MockWaveform.monthFormatter.string(from: date)
-        }
-
         return Snapshot(
             schemaVersion: 1,
             generated: now,
@@ -37,8 +24,8 @@ extension Snapshot {
                 carbonIntensity: "Carbon intensity data © National Grid ESO and Oxford CS, CC BY 4.0.",
                 neso: "Contains NESO Data Portal data, NESO Open Licence."
             ),
-            year:    MockWaveform.buildSeries(dates: yearDates,  granularity: .day,   cycles: 1),
-            allTime: MockWaveform.buildSeries(dates: monthDates, granularity: .month, cycles: 1, drift: -0.3)
+            year:    MockWaveform.makeYear(now: now),
+            allTime: MockWaveform.makeAllTime(now: now)
         )
-    }
+    }()
 }

@@ -7,6 +7,7 @@ struct LineMetricChart: View {
     var lineColor: Color = Palette.accent
     var unitSuffix: String = ""
     var includeZero: Bool = false
+    var granularity: Granularity = .day
 
     var body: some View {
         VStack(spacing: 8) {
@@ -45,12 +46,7 @@ struct LineMetricChart: View {
                 }
             }
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                    AxisGridLine().foregroundStyle(Palette.graphLine)
-                    AxisValueLabel()
-                        .font(.appSerif(.caption))
-                        .foregroundStyle(.secondary)
-                }
+                ChartAxis.xAxisContent(for: granularity)
             }
             .frame(height: 160)
         }
@@ -58,14 +54,48 @@ struct LineMetricChart: View {
 
     private func yLabel(_ value: Double) -> String {
         let formatted: String
-        if abs(value) >= 1000 {
-            formatted = String(format: "%.0f", value)
-        } else if abs(value) >= 10 || value == 0 {
+        if abs(value) >= 10 || value == 0 {
             formatted = String(format: "%.0f", value)
         } else {
             formatted = String(format: "%.1f", value)
         }
         return formatted + unitSuffix
+    }
+}
+
+enum ChartAxis {
+    @AxisContentBuilder
+    static func xAxisContent(for granularity: Granularity) -> some AxisContent {
+        switch granularity {
+        case .halfHour:
+            AxisMarks(values: .stride(by: .hour, count: 6)) { _ in
+                AxisGridLine().foregroundStyle(Palette.graphLine)
+                AxisValueLabel(format: .dateTime.hour(.defaultDigits(amPM: .abbreviated)).minute())
+                    .font(.appSerif(.caption))
+                    .foregroundStyle(.secondary)
+            }
+        case .hour:
+            AxisMarks(values: .stride(by: .day, count: 1)) { _ in
+                AxisGridLine().foregroundStyle(Palette.graphLine)
+                AxisValueLabel(format: .dateTime.weekday(.abbreviated))
+                    .font(.appSerif(.caption))
+                    .foregroundStyle(.secondary)
+            }
+        case .day:
+            AxisMarks(values: .stride(by: .month, count: 3)) { _ in
+                AxisGridLine().foregroundStyle(Palette.graphLine)
+                AxisValueLabel(format: .dateTime.day(.twoDigits).month(.twoDigits).year())
+                    .font(.appSerif(.caption))
+                    .foregroundStyle(.secondary)
+            }
+        case .month:
+            AxisMarks(values: .stride(by: .year, count: 2)) { _ in
+                AxisGridLine().foregroundStyle(Palette.graphLine)
+                AxisValueLabel(format: .dateTime.year())
+                    .font(.appSerif(.caption))
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
@@ -79,7 +109,8 @@ struct TimedValue: Identifiable {
     let series = LiveData.sample.day
     let dates = series.parsedDates
     let pts = zip(dates, series.price).map { TimedValue(date: $0.0, value: $0.1) }
-    return LineMetricChart(title: "Price per MWh", points: pts, lineColor: .white, unitSuffix: "£")
+    return LineMetricChart(title: "Price per MWh", points: pts, lineColor: .white,
+                           unitSuffix: "£", granularity: .halfHour)
         .padding()
         .background(Palette.contentBackground)
         .preferredColorScheme(.dark)
