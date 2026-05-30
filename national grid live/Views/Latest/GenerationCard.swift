@@ -15,8 +15,9 @@ struct GenerationCard: View {
 
     @AppStorage(AppSettings.generationVisualisationKey) private var visualisation: GenerationVisualisation = .bar
 
-    // All groups start collapsed; the user discloses the ones they care about.
-    @State private var expanded: Set<String> = []
+    // Renewables starts expanded (the largest, most-watched group); the user
+    // discloses or collapses the rest.
+    @State private var expanded: Set<String> = ["Renewables"]
 
     private struct Group: Identifiable {
         let style: CategoryStyle

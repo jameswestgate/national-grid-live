@@ -17,11 +17,11 @@ struct AppConfig: Sendable {
     let snapshot: SnapshotSource
     let refreshInterval: Duration
 
-    /// v1 default: real live data, mocked historical snapshot.
-    /// Flip `snapshot` to `.url(...)` once the C# backfill service is hosted.
+    /// v1 default: real live data + the hosted historical snapshot (generated
+    /// daily by the `national-grid-live-tools` GitHub Action, served via Pages).
     static let `default` = AppConfig(
         live: .real,
-        snapshot: .mock,
+        snapshot: .url(URL(string: "https://jameswestgate.github.io/national-grid-live-tools/v1/snapshot.json")!),
         refreshInterval: .seconds(300)
     )
 
