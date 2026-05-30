@@ -30,11 +30,25 @@ enum FuelType: String, CaseIterable, Codable, Sendable, Hashable {
         case .coal:    Color(.systemRed)
         case .gas:     Color(.systemOrange)
         case .solar:   Color(.systemYellow)
-        case .wind:    Color(.systemMint)
-        case .hydro:   Color(.systemTeal)
+        case .wind:    Color(.systemGreen)
+        case .hydro:   Color(.systemBlue)
         case .nuclear: Color(.systemCyan)
         case .biomass: Color(.systemIndigo)
-        case .pumped:  Color(.systemBlue)
+        case .pumped:  Color(.systemGray)
+        }
+    }
+
+    /// SF Symbol shown in the source-row icon badge.
+    var systemImage: String {
+        switch self {
+        case .gas:     "flame.fill"
+        case .coal:    "mountain.2.fill"
+        case .wind:    "wind"
+        case .solar:   "sun.max.fill"
+        case .hydro:   "drop.fill"
+        case .nuclear: "atom"
+        case .biomass: "leaf.fill"
+        case .pumped:  "arrow.up.arrow.down"
         }
     }
 }
@@ -55,7 +69,7 @@ enum FuelCategory: String, CaseIterable, Sendable, Hashable {
         switch self {
         case .fossil: Color(.systemRed)
         case .renewable: Color(.systemGreen)
-        case .other: Color(.systemBlue)
+        case .other: Color(.systemPurple)
         case .storage: Color(.systemGray)
         }
     }
@@ -65,6 +79,8 @@ enum Interconnector: String, CaseIterable, Codable, Sendable, Hashable {
     case france, norway, belgium, denmark, ireland, netherlands
 
     var displayName: String { rawValue.capitalized }
+
+    var systemImage: String { "arrow.left.arrow.right" }
 
     var swatch: Color {
         switch self {

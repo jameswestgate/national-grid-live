@@ -5,120 +5,45 @@ import SwiftUI
 /// snapshot and the historic period averages.
 struct LatestSection: View {
     let stats: PeriodAverages
-    @State private var width: CGFloat = 0
+    /// Caption rendered directly under the generation card, e.g.
+    /// ("Generation time", "1:45pm") on Live or ("Period", "Past day") on Historic.
+    var caption: (label: String, value: String)? = nil
+    var captionInfo: String? = nil
 
     var body: some View {
-        layoutFor(width: width)
-            .frame(maxWidth: .infinity)
-            .background(
-                GeometryReader { proxy in
-                    Color.clear.preference(key: WidthKey.self, value: proxy.size.width)
-                }
-            )
-            .onPreferenceChange(WidthKey.self) { newWidth in
-                width = newWidth
-            }
-    }
-
-    private struct WidthKey: PreferenceKey {
-        static let defaultValue: CGFloat = 0
-        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-            value = nextValue()
-        }
-    }
-
-    @ViewBuilder
-    private func layoutFor(width: CGFloat) -> some View {
-        let isWide = width >= 780
-
         VStack(spacing: 12) {
-            SectionHeader(title: "Generation", topSpacing: 0)
+            GenerationCard(
+                generation: stats.generation,
+                demand: stats.demand,
+                fuels: stats.fuels
+            )
 
-            if isWide {
-                HStack(alignment: .top, spacing: 12) {
-                    generationCard.frame(maxWidth: .infinity)
-                    VStack(spacing: 12) {
-                        fossilsCard
-                        renewablesCard
-                        othersCard
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            } else {
-                generationCard
-                fossilsCard
-                renewablesCard
-                othersCard
+            if let caption {
+                GenerationCaption(label: caption.label, value: caption.value, info: captionInfo)
             }
 
-            SectionHeader(title: "Interconnectors")
             interconnectorsCard
-
-            SectionHeader(title: "Storage")
             storageCard
-
-            footnote
         }
-    }
-
-    private var generationCard: some View {
-        GenerationCard(
-            generation: stats.generation,
-            demand: stats.demand,
-            fuels: stats.fuels
-        )
-    }
-
-    private var fossilsCard: some View {
-        let total = stats.categoryTotal(.fossil)
-        return CategoryCard(
-            style: .fossil,
-            name: "Fossil Fuels",
-            totalGW: total,
-            percentOfDemand: stats.share(total),
-            entries: entries(for: [.coal, .gas])
-        )
-    }
-
-    private var renewablesCard: some View {
-        let total = stats.categoryTotal(.renewable)
-        return CategoryCard(
-            style: .renewable,
-            name: "Renewables",
-            totalGW: total,
-            percentOfDemand: stats.share(total),
-            entries: entries(for: [.solar, .wind, .hydro])
-        )
-    }
-
-    private var othersCard: some View {
-        let total = stats.categoryTotal(.other)
-        return CategoryCard(
-            style: .other,
-            name: "Other Sources",
-            totalGW: total,
-            percentOfDemand: stats.share(total),
-            entries: entries(for: [.nuclear, .biomass])
-        )
     }
 
     private var interconnectorsCard: some View {
         let total = stats.interconnectorsTotal
-        return CategoryCard(
-            style: .interconnectors,
-            name: nil,
+        return SourceListCard(
+            title: "Interconnectors",
             totalGW: total,
-            percentOfDemand: stats.share(total),
-            entries: Interconnector.allCases
+            caption: String(format: "%.1f%% of demand", stats.share(total) * 100),
+            items: Interconnector.allCases
                 .sorted { $0.displayName < $1.displayName }
                 .map { ic in
                     let gw = stats.interconnectors[ic] ?? 0
-                    return SourceEntry(
+                    return SourceListItem(
                         id: ic.rawValue,
-                        label: ic.displayName,
-                        color: ic.swatch,
-                        valueGW: gw,
-                        percentOfDemand: stats.share(gw)
+                        icon: ic.systemImage,
+                        tint: ic.swatch,
+                        name: ic.displayName,
+                        gw: gw,
+                        percent: stats.share(gw)
                     )
                 }
         )
@@ -126,56 +51,36 @@ struct LatestSection: View {
 
     private var storageCard: some View {
         let pumped = stats.fuels[.pumped] ?? 0
-        return CategoryCard(
-            style: .storage,
-            name: nil,
+        return SourceListCard(
+            title: "Storage",
             totalGW: pumped,
-            percentOfDemand: stats.share(pumped),
-            entries: [
-                SourceEntry(
+            caption: String(format: "%.1f%% of demand", stats.share(pumped) * 100),
+            items: [
+                SourceListItem(
                     id: "pumped",
-                    label: "Pumped storage",
-                    color: FuelType.pumped.swatch,
-                    valueGW: pumped,
-                    percentOfDemand: stats.share(pumped)
+                    icon: FuelType.pumped.systemImage,
+                    tint: FuelType.pumped.swatch,
+                    name: "Pumped storage",
+                    gw: pumped,
+                    percent: stats.share(pumped)
                 ),
-                SourceEntry(
+                SourceListItem(
                     id: "battery",
-                    label: "Battery storage",
-                    color: Color(.systemPurple),
-                    valueGW: nil,
-                    percentOfDemand: nil
+                    icon: "minus.plus.batteryblock.fill",
+                    tint: Color(.systemPurple),
+                    name: "Battery storage",
+                    gw: nil,
+                    percent: nil
                 )
             ]
         )
     }
-
-    private func entries(for fuels: [FuelType]) -> [SourceEntry] {
-        fuels.map { fuel in
-            let gw = stats.fuels[fuel] ?? 0
-            return SourceEntry(
-                id: fuel.rawValue,
-                label: fuel.displayName,
-                color: fuel.swatch,
-                valueGW: gw,
-                percentOfDemand: stats.share(gw)
-            )
-        }
-    }
-
-    private var footnote: some View {
-        Text("Note: percentages are relative to demand, so will exceed 100% if power is being exported")
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.leading)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 4)
-            .padding(.top, 4)
-    }
 }
 
 #Preview("iPhone") {
-    LatestSection(stats: LiveGrid.sample.asAverages)
-        .padding()
-        .background(Palette.pageBackground)
+    ScrollView {
+        LatestSection(stats: LiveGrid.sample.asAverages)
+            .padding()
+    }
+    .background(Palette.pageBackground)
 }

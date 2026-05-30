@@ -5,36 +5,36 @@ struct HistoricScreen: View {
     @State private var selection: Period = .day
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Historic")
-                    .font(.largeTitle.bold())
-                    .padding(.horizontal, 4)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Picker("Period", selection: $selection) {
+                        ForEach(Period.allCases) { period in
+                            Text(period.displayName).tag(period)
+                        }
+                    }
+                    .pickerStyle(.segmented)
 
-                Picker("Period", selection: $selection) {
-                    ForEach(Period.allCases) { period in
-                        Text(period.displayName).tag(period)
+                    if let message = snapshotFailureMessage {
+                        OfflineBanner(message: message) {
+                            Task { await store.refresh() }
+                        }
+                    }
+
+                    if let live = store.live, let snapshot = store.snapshot {
+                        content(live: live, snapshot: snapshot)
+                    } else {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 60)
                     }
                 }
-                .pickerStyle(.segmented)
-
-                if let message = snapshotFailureMessage {
-                    OfflineBanner(message: message) {
-                        Task { await store.refresh() }
-                    }
-                }
-
-                if let live = store.live, let snapshot = store.snapshot {
-                    content(live: live, snapshot: snapshot)
-                } else {
-                    ProgressView()
-                        .padding(.top, 60)
-                }
+                .padding(16)
             }
-            .padding(16)
+            .background(Palette.pageBackground.ignoresSafeArea())
+            .navigationTitle("Historic")
+            .refreshable { await store.refresh() }
         }
-        .background(Palette.pageBackground.ignoresSafeArea())
-        .refreshable { await store.refresh() }
     }
 
     @ViewBuilder

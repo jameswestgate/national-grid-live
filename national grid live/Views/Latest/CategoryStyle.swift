@@ -11,7 +11,7 @@ enum CategoryStyle {
         switch self {
         case .fossil:          "flame.fill"
         case .renewable:       "leaf.fill"
-        case .other:           "bolt.fill"
+        case .other:           "ellipsis"
         case .interconnectors: "arrow.left.arrow.right"
         case .storage:         "battery.100"
         }

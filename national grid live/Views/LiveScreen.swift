@@ -4,33 +4,33 @@ struct LiveScreen: View {
     @Environment(GridStore.self) private var store
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Live")
-                    .font(.largeTitle.bold())
-                    .padding(.horizontal, 4)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    if let message = liveFailureMessage {
+                        OfflineBanner(message: message) {
+                            Task { await store.refresh() }
+                        }
+                    }
 
-                if let message = liveFailureMessage {
-                    OfflineBanner(message: message) {
-                        Task { await store.refresh() }
+                    if let live = store.live {
+                        StatusBarView(
+                            stats: live.current.asAverages,
+                            headline: ("Time", Self.timeFormatter.string(from: live.current.asOf))
+                        )
+                        LatestSection(stats: live.current.asAverages)
+                    } else {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 60)
                     }
                 }
-
-                if let live = store.live {
-                    StatusBarView(
-                        stats: live.current.asAverages,
-                        headline: ("Time", Self.timeFormatter.string(from: live.current.asOf))
-                    )
-                    LatestSection(stats: live.current.asAverages)
-                } else {
-                    ProgressView()
-                        .padding(.top, 60)
-                }
+                .padding(16)
             }
-            .padding(16)
+            .background(Palette.pageBackground.ignoresSafeArea())
+            .navigationTitle("Live")
+            .refreshable { await store.refresh() }
         }
-        .background(Palette.pageBackground.ignoresSafeArea())
-        .refreshable { await store.refresh() }
     }
 
     private var liveFailureMessage: String? {
@@ -40,9 +40,9 @@ struct LiveScreen: View {
 
     private static let timeFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "h:mma"
-        f.amSymbol = "am"
-        f.pmSymbol = "pm"
+        // 24-hour clock, no am/pm (e.g. "09:05", "13:45").
+        f.locale = Locale(identifier: "en_GB")
+        f.dateFormat = "HH:mm"
         return f
     }()
 }

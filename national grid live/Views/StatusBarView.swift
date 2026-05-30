@@ -1,17 +1,20 @@
 import SwiftUI
 
+/// Compact KPI strip shown above the generation breakdown: the snapshot time /
+/// period, market price and carbon intensity on the left, with the
+/// demand = generation + transfers balance on the right.
 struct StatusBarView: View {
     let stats: PeriodAverages
-    /// First KPI cell — pass ("Time", "1:25pm") for Live, ("Period", "Past day") for Historic.
+    /// First KPI cell — ("Time", "1:45pm") on Live, ("Period", "Past day") on Historic.
     let headline: (label: String, value: String)
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 leftCard
                 rightCard
             }
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 leftCard
                 rightCard
             }
@@ -53,31 +56,33 @@ struct StatusBarView: View {
     }
 
     private func kpi(label: String, value: String, unit: String, prefix: String = "") -> some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 5) {
             Text(label)
-                .font(.subheadline)
+                .font(.footnote)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
             HStack(alignment: .firstTextBaseline, spacing: 1) {
                 if !prefix.isEmpty {
                     Text(prefix)
-                        .font(.title2.weight(.bold).monospacedDigit())
+                        .font(.title3.weight(.bold).monospacedDigit())
                         .foregroundStyle(Palette.dataText)
                 }
                 Text(value)
-                    .font(.title2.weight(.bold).monospacedDigit())
+                    .font(.title3.weight(.bold).monospacedDigit())
                     .foregroundStyle(Palette.dataText)
                 Text(unit).font(.caption2).foregroundStyle(.secondary)
             }
             .lineLimit(1)
+            .tracking(-0.3)
+            .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 3)
     }
 
     private func operatorLabel(_ symbol: String) -> some View {
         Text(symbol)
-            .font(.title2)
+            .font(.title3)
             .foregroundStyle(.secondary)
             .padding(.bottom, 2)
     }
@@ -85,12 +90,6 @@ struct StatusBarView: View {
 
 #Preview("Live") {
     StatusBarView(stats: LiveGrid.sample.asAverages, headline: ("Time", "1:25pm"))
-        .padding()
-        .background(Palette.pageBackground)
-}
-
-#Preview("Historic") {
-    StatusBarView(stats: PeriodAverages.from(LiveData.sample.day), headline: ("Period", "Past day"))
         .padding()
         .background(Palette.pageBackground)
 }
