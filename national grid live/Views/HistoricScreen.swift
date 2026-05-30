@@ -3,12 +3,15 @@ import SwiftUI
 struct HistoricScreen: View {
     @Environment(GridStore.self) private var store
     @State private var selection: Period = .day
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        ScreenHeader(title: "Historic") { showSettings = true }
+
                         Picker("Period", selection: $selection) {
                             ForEach(Period.allCases) { period in
                                 Text(period.displayName).tag(period)
@@ -34,8 +37,9 @@ struct HistoricScreen: View {
                     .padding(16)
                 }
                 .washBackground()
-                .navigationTitle("Historic")
+                .toolbar(.hidden, for: .navigationBar)
                 .refreshable { await store.refresh() }
+                .settingsSheet($showSettings)
             }
         }
     }

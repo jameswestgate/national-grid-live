@@ -2,12 +2,15 @@ import SwiftUI
 
 struct LiveScreen: View {
     @Environment(GridStore.self) private var store
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        ScreenHeader(title: "Live") { showSettings = true }
+
                         if let message = liveFailureMessage {
                             OfflineBanner(message: message) {
                                 Task { await store.refresh() }
@@ -32,8 +35,9 @@ struct LiveScreen: View {
                     .padding(16)
                 }
                 .washBackground()
-                .navigationTitle("Live")
+                .toolbar(.hidden, for: .navigationBar)
                 .refreshable { await store.refresh() }
+                .settingsSheet($showSettings)
             }
         }
     }

@@ -9,12 +9,7 @@ import UIKit
 /// carries its name inside it; tapping one expands+scrolls to that group/fuel.
 struct GenerationBars: View {
     let fuels: [FuelType: Double]
-    var onSelect: (Selection) -> Void = { _ in }
-
-    enum Selection: Equatable {
-        case fuel(FuelType)
-        case category(FuelCategory)
-    }
+    var onSelect: (GenerationSelection) -> Void = { _ in }
 
     /// Only the three generation groups — matches the card's rows.
     private static let categoryOrder: [FuelCategory] = [.fossil, .renewable, .other]

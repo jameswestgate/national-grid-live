@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// The generation mix as a single expandable card — replaces the donut.
-/// Top-level groups (Fossil / Renewables / Other Sources) disclose their
+/// The generation mix as a single expandable card. A header row, then an
+/// optional visualisation (bar / donut / none — chosen in Settings), then the
+/// top-level groups (Fossil / Renewables / Other Sources) which disclose their
 /// constituent sources on tap. Percentages are share-of-demand throughout, so
 /// the three groups sum to the headline "% of demand".
 struct GenerationCard: View {
@@ -11,6 +12,8 @@ struct GenerationCard: View {
     /// Asks the enclosing scroll view to bring a row id into view (see `rowID`).
     /// Optional so the card still works (just expands) without a `ScrollViewReader`.
     var onScrollTo: ((String) -> Void)? = nil
+
+    @AppStorage(AppSettings.generationVisualisationKey) private var visualisation: GenerationVisualisation = .bar
 
     // All groups start collapsed; the user discloses the ones they care about.
     @State private var expanded: Set<String> = []
@@ -44,10 +47,7 @@ struct GenerationCard: View {
                 .padding(.top, 16)
                 .padding(.bottom, 14)
 
-                GenerationBars(fuels: fuels) { select($0) }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)      // + the header's 14pt below ≈ 22pt above the bars
-                    .padding(.bottom, 22)
+                visualisationGraphic
 
                 ForEach(groups) { group in
                     Divider().padding(.leading, 16)
@@ -65,6 +65,27 @@ struct GenerationCard: View {
     }
 
     private var shareOfDemand: Double { demand > 0 ? generation / demand : 0 }
+
+    /// The chosen visualisation between the header and the groups. Bar and donut
+    /// share the same ~22pt top/bottom breathing room; "none" renders nothing.
+    @ViewBuilder
+    private var visualisationGraphic: some View {
+        switch visualisation {
+        case .bar:
+            GenerationBars(fuels: fuels) { select($0) }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)      // + the header's 14pt below ≈ 22pt above
+                .padding(.bottom, 22)
+        case .donut:
+            GenerationDonut(fuels: fuels) { select($0) }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 22)
+        case .hidden:
+            EmptyView()
+        }
+    }
 
     @ViewBuilder
     private func groupSection(_ group: Group) -> some View {
@@ -124,7 +145,7 @@ struct GenerationCard: View {
     /// Bar segment tapped → reveal the matching group and scroll its detail into
     /// view. Category-bar taps target the group header; fuel-bar taps target that
     /// fuel's row.
-    private func select(_ selection: GenerationBars.Selection) {
+    private func select(_ selection: GenerationSelection) {
         let group: Group
         let scrollID: String
         switch selection {
