@@ -69,3 +69,8 @@ national grid live/
 Inspired by **National Grid: Live** by Kate Morley (grid.iamkate.com), released
 under CC0 1.0. Data © Elexon (BMRS), National Grid ESO & University of Oxford
 (Carbon Intensity, CC BY 4.0), and NESO (Open Licence).
+
+## License
+
+This project's source code is licensed under the [MIT License](LICENSE).
+Displayed data remains © its respective providers under the licences noted above.

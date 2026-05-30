@@ -4,11 +4,22 @@ import SwiftUI
 /// navigation bars.
 struct SettingsScreen: View {
     @AppStorage(AppSettings.generationVisualisationKey) private var visualisation: GenerationVisualisation = .bar
+    @AppStorage(AppSettings.themeKey) private var theme: AppTheme = .system
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             List {
+                Section("Appearance") {
+                    Picker("Theme", selection: $theme) {
+                        ForEach(AppTheme.allCases) { option in
+                            Label(option.displayName, systemImage: option.systemImage).tag(option)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
+
                 Section {
                     Picker("Style", selection: $visualisation) {
                         ForEach(GenerationVisualisation.allCases) { option in

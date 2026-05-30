@@ -26,9 +26,45 @@ enum GenerationVisualisation: String, CaseIterable, Identifiable {
     }
 }
 
+/// App appearance override. `.system` follows the device setting.
+enum AppTheme: String, CaseIterable, Identifiable {
+    case system
+    case light
+    case dark
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .system: "System"
+        case .light:  "Light"
+        case .dark:   "Dark"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .system: "circle.lefthalf.filled"
+        case .light:  "sun.max"
+        case .dark:   "moon"
+        }
+    }
+
+    /// `nil` = follow the system; otherwise force the scheme.
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light:  .light
+        case .dark:   .dark
+        }
+    }
+}
+
 enum AppSettings {
     /// `@AppStorage` key for the generation visualisation choice. Default: `.bar`.
     static let generationVisualisationKey = "generationVisualisation"
+    /// `@AppStorage` key for the appearance override. Default: `.system`.
+    static let themeKey = "appTheme"
 }
 
 /// A tap on the generation graphic (bar segment or donut slice). Shared by

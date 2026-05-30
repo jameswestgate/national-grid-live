@@ -4,6 +4,7 @@ struct ContentView: View {
     // Honour a `-startTab live|historic|about` launch argument (parsed into
     // UserDefaults by the system) so a chosen tab can be deep-linked at launch.
     @State private var selection: String = UserDefaults.standard.string(forKey: "startTab") ?? "live"
+    @AppStorage(AppSettings.themeKey) private var theme: AppTheme = .system
 
     var body: some View {
         TabView(selection: $selection) {
@@ -17,6 +18,7 @@ struct ContentView: View {
                 AboutScreen()
             }
         }
+        .preferredColorScheme(theme.colorScheme)
     }
 }
 
