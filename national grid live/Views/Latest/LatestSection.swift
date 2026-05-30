@@ -9,13 +9,16 @@ struct LatestSection: View {
     /// ("Generation time", "1:45pm") on Live or ("Period", "Past day") on Historic.
     var caption: (label: String, value: String)? = nil
     var captionInfo: String? = nil
+    /// Forwarded to the generation card so a donut tap can scroll a row into view.
+    var onScrollTo: ((String) -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 12) {
             GenerationCard(
                 generation: stats.generation,
                 demand: stats.demand,
-                fuels: stats.fuels
+                fuels: stats.fuels,
+                onScrollTo: onScrollTo
             )
 
             if let caption {

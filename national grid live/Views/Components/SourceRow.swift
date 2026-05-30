@@ -14,6 +14,12 @@ struct SourceRow: View {
     let percent: Double?
     var chevron: Chevron? = nil
     var emphasised: Bool = false
+    /// Reserve the trailing chevron gutter even when there's no chevron, so the
+    /// GW/% column lines up with sibling rows that do have one (the disclosable
+    /// group headers). Used by the generation card's expanded member rows.
+    var reservesChevronSpace: Bool = false
+
+    private static let chevronWidth: CGFloat = 14
 
     var body: some View {
         HStack(spacing: 12) {
@@ -44,6 +50,11 @@ struct SourceRow: View {
                 Image(systemName: chevron == .down ? "chevron.down" : "chevron.right")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.tertiary)
+                    // Fixed width so chevron.down (wider) and chevron.right (narrower)
+                    // occupy the same space — the GW/% column doesn't shift on toggle.
+                    .frame(width: Self.chevronWidth, alignment: .trailing)
+            } else if reservesChevronSpace {
+                Color.clear.frame(width: Self.chevronWidth)
             }
         }
     }

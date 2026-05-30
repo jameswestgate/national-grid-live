@@ -23,13 +23,29 @@ enum Palette {
     // Brand tint sourced from AccentColor asset.
     static let accent = Color.accentColor
 
-    /// Navy used for the "Other Sources" category — deep in light mode, lifted in
-    /// dark mode so the icon/bar stay legible.
-    static let navy = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.42, green: 0.56, blue: 0.93, alpha: 1)
-            : UIColor(red: 0.13, green: 0.22, blue: 0.45, alpha: 1)
-    })
+    /// Generation-mix palette, taken verbatim from grid.iamkate.com's `grid.css`
+    /// (CC0). Fixed hues (not semantic system colours) so the chart reads exactly
+    /// like the reference site in both light and dark mode. Renewables/wind and
+    /// the "other sources" blues are intentionally distinct shades within a hue.
+    enum Fuel {
+        static let coal    = hex(0xa35)  // dark crimson
+        static let gas     = hex(0xe94)  // orange
+        static let solar   = hex(0xed0)  // yellow
+        static let wind    = hex(0x9d5)  // lime / yellow-green
+        static let hydro   = hex(0x2cb)  // teal
+        static let nuclear = hex(0x09c)  // cyan-blue
+        static let biomass = hex(0x36b)  // blue
+
+        static let fossilCategory    = hex(0xc45)  // red
+        static let renewableCategory = hex(0x5b5)  // green
+        static let otherCategory     = hex(0x27c)  // blue
+    }
+
+    /// Expand a 3-digit (`0xRGB`) CSS-style hex into a Color.
+    private static func hex(_ rgb: Int) -> Color {
+        let r = (rgb >> 8) & 0xF, g = (rgb >> 4) & 0xF, b = rgb & 0xF
+        return Color(red: Double(r * 17) / 255, green: Double(g * 17) / 255, blue: Double(b * 17) / 255)
+    }
 
     static let cardCornerRadius: CGFloat = 14
 }

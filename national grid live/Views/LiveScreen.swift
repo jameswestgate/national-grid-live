@@ -5,31 +5,36 @@ struct LiveScreen: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if let message = liveFailureMessage {
-                        OfflineBanner(message: message) {
-                            Task { await store.refresh() }
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        if let message = liveFailureMessage {
+                            OfflineBanner(message: message) {
+                                Task { await store.refresh() }
+                            }
+                        }
+
+                        if let live = store.live {
+                            StatusBarView(
+                                stats: live.current.asAverages,
+                                headline: ("Time", Self.timeFormatter.string(from: live.current.asOf))
+                            )
+                            LatestSection(
+                                stats: live.current.asAverages,
+                                onScrollTo: { proxy.scrollTo($0, anchor: .center) }
+                            )
+                        } else {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 60)
                         }
                     }
-
-                    if let live = store.live {
-                        StatusBarView(
-                            stats: live.current.asAverages,
-                            headline: ("Time", Self.timeFormatter.string(from: live.current.asOf))
-                        )
-                        LatestSection(stats: live.current.asAverages)
-                    } else {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 60)
-                    }
+                    .padding(16)
                 }
-                .padding(16)
+                .washBackground()
+                .navigationTitle("Live")
+                .refreshable { await store.refresh() }
             }
-            .washBackground()
-            .navigationTitle("Live")
-            .refreshable { await store.refresh() }
         }
     }
 

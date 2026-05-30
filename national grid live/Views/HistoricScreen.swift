@@ -6,46 +6,50 @@ struct HistoricScreen: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    Picker("Period", selection: $selection) {
-                        ForEach(Period.allCases) { period in
-                            Text(period.displayName).tag(period)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Picker("Period", selection: $selection) {
+                            ForEach(Period.allCases) { period in
+                                Text(period.displayName).tag(period)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+
+                        if let message = snapshotFailureMessage {
+                            OfflineBanner(message: message) {
+                                Task { await store.refresh() }
+                            }
+                        }
+
+                        if let live = store.live, let snapshot = store.snapshot {
+                            content(live: live, snapshot: snapshot,
+                                    onScrollTo: { proxy.scrollTo($0, anchor: .center) })
+                        } else {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 60)
                         }
                     }
-                    .pickerStyle(.segmented)
-
-                    if let message = snapshotFailureMessage {
-                        OfflineBanner(message: message) {
-                            Task { await store.refresh() }
-                        }
-                    }
-
-                    if let live = store.live, let snapshot = store.snapshot {
-                        content(live: live, snapshot: snapshot)
-                    } else {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 60)
-                    }
+                    .padding(16)
                 }
-                .padding(16)
+                .washBackground()
+                .navigationTitle("Historic")
+                .refreshable { await store.refresh() }
             }
-            .washBackground()
-            .navigationTitle("Historic")
-            .refreshable { await store.refresh() }
         }
     }
 
     @ViewBuilder
-    private func content(live: LiveData, snapshot: Snapshot) -> some View {
+    private func content(live: LiveData, snapshot: Snapshot,
+                         onScrollTo: @escaping (String) -> Void) -> some View {
         let series = series(for: selection, live: live, snapshot: snapshot)
         let dates = series.parsedDates
         let averages = PeriodAverages.from(series)
 
         StatusBarView(stats: averages, headline: ("Period", selection.displayName))
 
-        LatestSection(stats: averages)
+        LatestSection(stats: averages, onScrollTo: onScrollTo)
 
         chartsSection(series: series, dates: dates)
     }

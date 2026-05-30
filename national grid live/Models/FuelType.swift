@@ -27,13 +27,13 @@ enum FuelType: String, CaseIterable, Codable, Sendable, Hashable {
 
     var swatch: Color {
         switch self {
-        case .coal:    Color(.systemRed)
-        case .gas:     Color(.systemOrange)
-        case .solar:   Color(.systemYellow)
-        case .wind:    Color(.systemGreen)
-        case .hydro:   Color(.systemBlue)
-        case .nuclear: Color(.systemCyan)
-        case .biomass: Color(.systemIndigo)
+        case .coal:    Palette.Fuel.coal
+        case .gas:     Palette.Fuel.gas
+        case .solar:   Palette.Fuel.solar
+        case .wind:    Palette.Fuel.wind
+        case .hydro:   Palette.Fuel.hydro
+        case .nuclear: Palette.Fuel.nuclear
+        case .biomass: Palette.Fuel.biomass
         case .pumped:  Color(.systemGray)
         }
     }
@@ -67,9 +67,9 @@ enum FuelCategory: String, CaseIterable, Sendable, Hashable {
 
     var bannerColor: Color {
         switch self {
-        case .fossil: Color(.systemRed)
-        case .renewable: Color(.systemGreen)
-        case .other: Palette.navy
+        case .fossil: Palette.Fuel.fossilCategory
+        case .renewable: Palette.Fuel.renewableCategory
+        case .other: Palette.Fuel.otherCategory
         case .storage: Color(.systemGray)
         }
     }
