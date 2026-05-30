@@ -23,5 +23,13 @@ enum Palette {
     // Brand tint sourced from AccentColor asset.
     static let accent = Color.accentColor
 
+    /// Navy used for the "Other Sources" category — deep in light mode, lifted in
+    /// dark mode so the icon/bar stay legible.
+    static let navy = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.42, green: 0.56, blue: 0.93, alpha: 1)
+            : UIColor(red: 0.13, green: 0.22, blue: 0.45, alpha: 1)
+    })
+
     static let cardCornerRadius: CGFloat = 14
 }

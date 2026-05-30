@@ -38,7 +38,6 @@ struct SourceRow: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-            .monospacedDigit()
             .layoutPriority(1)
 
             if let chevron {
@@ -57,7 +56,7 @@ struct SourceRow: View {
     private var gwText: String {
         guard let gw else { return "—" }
         let sign = gw < 0 ? "−" : ""
-        return sign + String(format: "%.1f GW", abs(gw))
+        return sign + String(format: "%.2f GW", abs(gw))
     }
 
     private var percentText: String {

@@ -36,7 +36,7 @@ struct GenerationCaption: View {
                 }
             }
         }
-        .font(.footnote.monospacedDigit())
+        .font(.footnote)
         .padding(.horizontal, 4)
         .padding(.top, 2)
     }

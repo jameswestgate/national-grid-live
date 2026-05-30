@@ -31,7 +31,7 @@ struct HistoricScreen: View {
                 }
                 .padding(16)
             }
-            .background(Palette.pageBackground.ignoresSafeArea())
+            .washBackground()
             .navigationTitle("Historic")
             .refreshable { await store.refresh() }
         }

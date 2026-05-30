@@ -42,7 +42,7 @@ struct CardSectionHeader: View {
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         Text(valueGW < 0 ? "−" + String(format: "%.1f", abs(valueGW))
                                           : String(format: "%.1f", valueGW))
-                            .font(.title2.weight(.bold).monospacedDigit())
+                            .font(.title2.weight(.bold))
                             .foregroundStyle(.primary)
                         Text("GW")
                             .font(.footnote.weight(.semibold))
@@ -52,7 +52,6 @@ struct CardSectionHeader: View {
                         Text(caption)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                            .monospacedDigit()
                     }
                 }
             }

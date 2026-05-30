@@ -12,7 +12,7 @@ struct AboutScreen: View {
                 }
                 .padding(16)
             }
-            .background(Palette.pageBackground.ignoresSafeArea())
+            .washBackground()
             .navigationTitle("About")
         }
     }

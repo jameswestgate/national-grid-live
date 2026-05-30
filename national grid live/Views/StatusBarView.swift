@@ -64,7 +64,7 @@ struct StatusBarView: View {
             HStack(alignment: .firstTextBaseline, spacing: 1) {
                 if !prefix.isEmpty {
                     Text(prefix)
-                        .font(.title3.weight(.bold).monospacedDigit())
+                        .font(.title3.weight(.bold))
                         .foregroundStyle(Palette.dataText)
                 }
                 Text(value)
@@ -73,7 +73,6 @@ struct StatusBarView: View {
                 Text(unit).font(.caption2).foregroundStyle(.secondary)
             }
             .lineLimit(1)
-            .tracking(-0.3)
             .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity)

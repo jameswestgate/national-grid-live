@@ -69,7 +69,7 @@ enum FuelCategory: String, CaseIterable, Sendable, Hashable {
         switch self {
         case .fossil: Color(.systemRed)
         case .renewable: Color(.systemGreen)
-        case .other: Color(.systemPurple)
+        case .other: Palette.navy
         case .storage: Color(.systemGray)
         }
     }

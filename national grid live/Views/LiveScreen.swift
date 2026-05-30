@@ -27,7 +27,7 @@ struct LiveScreen: View {
                 }
                 .padding(16)
             }
-            .background(Palette.pageBackground.ignoresSafeArea())
+            .washBackground()
             .navigationTitle("Live")
             .refreshable { await store.refresh() }
         }
