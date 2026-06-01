@@ -205,8 +205,10 @@ struct LiveDataAggregator: LiveDataProvider {
         let emissions = Double(store.emissions[anchorKey] ?? 0)
         let price     = store.price[anchorKey] ?? 0
 
-        let generation = fuels.values.reduce(0, +)
-        let transfers  = ics.values.reduce(0, +)
+        // Match grid.iamkate.com: pumped storage is a TRANSFER, not generation.
+        let pumped     = fuels[.pumped] ?? 0
+        let generation = fuels.values.reduce(0, +) - pumped
+        let transfers  = ics.values.reduce(0, +) + pumped
         let demand     = generation + transfers
 
         return LiveGrid(
@@ -388,11 +390,13 @@ struct LiveDataAggregator: LiveDataProvider {
         if priceCount > 0 { result.price = priceSum / Double(priceCount) }
 
         // Derived: generation total, transfers total, demand = generation + transfers.
+        // Match grid.iamkate.com: pumped storage is a TRANSFER, not generation.
+        let pumped = result.fuels[.pumped] ?? 0
         if !result.fuels.isEmpty {
-            result.generation = result.fuels.values.reduce(0, +)
+            result.generation = result.fuels.values.reduce(0, +) - pumped
         }
-        if !result.interconnectors.isEmpty {
-            result.transfers = result.interconnectors.values.reduce(0, +)
+        if !result.interconnectors.isEmpty || result.fuels[.pumped] != nil {
+            result.transfers = result.interconnectors.values.reduce(0, +) + pumped
         }
         if let g = result.generation, let t = result.transfers {
             result.demand = g + t
