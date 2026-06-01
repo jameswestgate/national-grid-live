@@ -47,7 +47,9 @@ struct StatusBarView: View {
 
     private var priceText: String {
         guard let p = stats.price else { return "—" }
-        return String(format: "%.2f", p)
+        // Round to the nearest whole £ — less screen real estate than Kate's site,
+        // so the value stays short and the font never has to shrink.
+        return String(format: "%.0f", p)
     }
 
     private var emissionsText: String {
@@ -73,7 +75,6 @@ struct StatusBarView: View {
                 Text(unit).font(.caption2).foregroundStyle(.secondary)
             }
             .lineLimit(1)
-            .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 3)

@@ -16,7 +16,6 @@ struct GenerationBars: View {
 
     private let barHeight: CGFloat = 30
     private let spacing: CGFloat = 4          // "closely vertically aligned"
-    private let labelMinWidth: CGFloat = 38   // hide the label below this segment width
 
     private struct Segment<Payload> {
         let value: Double
@@ -43,11 +42,12 @@ struct GenerationBars: View {
                     let width = total > 0 ? CGFloat(max(0, segment.value) / total) * geo.size.width : 0
                     ZStack {
                         Rectangle().fill(segment.color)
-                        if width >= labelMinWidth {
+                        // Show the full label only when it fits; otherwise leave the
+                        // segment blank (no icon, no shrinking).
+                        if labelFits(segment.label, in: width) {
                             Text(segment.label)
                                 .font(.caption2.weight(.semibold))
                                 .lineLimit(1)
-                                .minimumScaleFactor(0.8)
                                 .foregroundStyle(textColor(on: segment.color))
                                 .padding(.horizontal, 3)
                         }
@@ -94,7 +94,7 @@ struct GenerationBars: View {
 
     private func label(for category: FuelCategory) -> String {
         switch category {
-        case .fossil:    "Fossil"
+        case .fossil:    "Fossil Fuels"
         case .renewable: "Renewables"
         case .other:     "Other"
         case .storage:   "Storage"
@@ -103,6 +103,15 @@ struct GenerationBars: View {
 
     private func label(for fuel: FuelType) -> String {
         fuel == .hydro ? "Hydro" : fuel.displayName
+    }
+
+    /// True when the segment's full label fits within `width` at the bar's font
+    /// (caption2 semibold) including the 3pt horizontal padding each side.
+    private func labelFits(_ text: String, in width: CGFloat) -> Bool {
+        let base = UIFont.preferredFont(forTextStyle: .caption2)
+        let font = UIFont.systemFont(ofSize: base.pointSize, weight: .semibold)
+        let textWidth = (text as NSString).size(withAttributes: [.font: font]).width
+        return textWidth + 6 <= width
     }
 
     /// Pick black or white text for legibility against the segment's fill.

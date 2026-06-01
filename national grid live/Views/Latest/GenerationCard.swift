@@ -15,9 +15,8 @@ struct GenerationCard: View {
 
     @AppStorage(AppSettings.generationVisualisationKey) private var visualisation: GenerationVisualisation = .bar
 
-    // Renewables starts expanded (the largest, most-watched group); the user
-    // discloses or collapses the rest.
-    @State private var expanded: Set<String> = ["Renewables"]
+    // Start fully collapsed; the user discloses groups on tap (matching Android).
+    @State private var expanded: Set<String> = []
 
     private struct Group: Identifiable {
         let style: CategoryStyle
@@ -160,6 +159,11 @@ struct GenerationCard: View {
             scrollID = fuelRowID(fuel)
         }
 
+        // Tapping a slice whose group is already open closes it again (toggle).
+        if expanded.contains(group.id) {
+            withAnimation(.snappy(duration: 0.26)) { _ = expanded.remove(group.id) }
+            return
+        }
         withAnimation(.snappy(duration: 0.26)) { expanded.insert(group.id) }
         // Defer the scroll a runloop so the freshly-revealed rows are laid out
         // and their ids are resolvable by the ScrollViewReader.
