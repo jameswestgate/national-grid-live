@@ -33,13 +33,16 @@ struct StatusBarView: View {
     }
 
     private var rightCard: some View {
+        // The equation uses the site's display rule: each term rounded to 1 dp
+        // BEFORE summing, so Demand = Generation + Transfers always adds up on
+        // screen. Negative transfers flip the operator to "−" (Equation.php).
         Card {
             HStack(spacing: 0) {
-                kpi(label: "Demand", value: String(format: "%.1f", stats.demand), unit: "GW")
+                kpi(label: "Demand", value: String(format: "%.1f", stats.equationDemand), unit: "GW")
                 operatorLabel("=")
-                kpi(label: "Generation", value: String(format: "%.1f", stats.generation), unit: "GW")
-                operatorLabel("+")
-                kpi(label: "Transfers", value: String(format: "%.1f", stats.transfers), unit: "GW")
+                kpi(label: "Generation", value: String(format: "%.1f", stats.equationGeneration), unit: "GW")
+                operatorLabel(stats.equationTransfers < 0 ? "−" : "+")
+                kpi(label: "Transfers", value: String(format: "%.1f", abs(stats.equationTransfers)), unit: "GW")
             }
             .padding(.vertical, 14)
         }

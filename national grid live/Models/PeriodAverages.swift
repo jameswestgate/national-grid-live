@@ -14,6 +14,27 @@ struct PeriodAverages: Sendable, Equatable {
         return value / demand
     }
 
+    // MARK: Equation display values (match grid.iamkate.com exactly)
+    //
+    // The site rounds each category total and transfers to 1 dp BEFORE summing
+    // (State/Demand.php), so the displayed "Demand = Generation + Transfers"
+    // always adds up on screen; the Generation panel headline GW uses the same
+    // rounded-sum (PieChart.php). Percentages, by contrast, use the
+    // FULL-precision values (Datum::getTotal()) — keep `share(_:)` for those.
+
+    /// Generation as displayed in the equation: Σ of 1 dp-rounded category totals.
+    var equationGeneration: Double {
+        r1(categoryTotal(.fossil)) + r1(categoryTotal(.renewable)) + r1(categoryTotal(.other))
+    }
+
+    /// Transfers as displayed in the equation: 1 dp-rounded (may be negative).
+    var equationTransfers: Double { r1(transfers) }
+
+    /// Demand as displayed in the equation: sum of the two rounded terms above.
+    var equationDemand: Double { equationGeneration + equationTransfers }
+
+    private func r1(_ value: Double) -> Double { (value * 10).rounded() / 10 }
+
     func categoryTotal(_ category: FuelCategory) -> Double {
         fuels.reduce(into: 0.0) { acc, kv in
             if kv.key.category == category { acc += kv.value }

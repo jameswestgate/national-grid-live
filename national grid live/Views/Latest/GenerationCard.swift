@@ -40,7 +40,7 @@ struct GenerationCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 CardSectionHeader(
                     title: "Generation",
-                    valueGW: generation,
+                    valueGW: headlineGeneration,
                     caption: String(format: "%.1f%% of demand", shareOfDemand * 100)
                 )
                 .padding(.horizontal, 16)
@@ -65,6 +65,17 @@ struct GenerationCard: View {
     }
 
     private var shareOfDemand: Double { demand > 0 ? generation / demand : 0 }
+
+    /// Headline GW matches the site (PieChart.php): the Σ of 1 dp-rounded group
+    /// totals — the same value as the KPI equation's Generation — so the header
+    /// and the equation strip never disagree by 0.1. The caption % deliberately
+    /// stays full-precision (Datum::getTotal()), also like the site.
+    private var headlineGeneration: Double {
+        groups.reduce(0.0) { acc, group in
+            let total = group.members.reduce(0.0) { $0 + (fuels[$1] ?? 0) }
+            return acc + (total * 10).rounded() / 10
+        }
+    }
 
     /// The chosen visualisation between the header and the groups. Bar and donut
     /// share the same ~22pt top/bottom breathing room; "none" renders nothing.

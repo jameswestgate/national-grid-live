@@ -8,11 +8,12 @@ import os
 /// Design notes:
 /// - On every refresh we ask each API for `[lastBucketInCache, now]` so we
 ///   only ever pull the few new buckets since the last refresh.
-/// - On first launch the cache is empty, so each API is asked for a 24-hour
-///   window (Elexon FUELINST / market-index / Carbon Intensity all return up
-///   to that natively). The past-day chart populates instantly; the past-week
-///   chart fills in as the cache accumulates over the next 7 days.
-/// - The store trims everything older than 7 days on every refresh.
+/// - The required window reaches back to the UTC midnight 7 days before
+///   today's (the site's "Past week" = the 7 most recent complete UTC days,
+///   excluding today). When a source's cache doesn't reach that far — first
+///   launch, upgrade, or a long offline gap — its whole window is re-fetched
+///   once (FUELINST ~8 MB; market index chunked to ≤7-day requests).
+/// - The store trims everything older than that window start on every refresh.
 struct LiveDataAggregator: LiveDataProvider {
     let elexon: ElexonClient
     let carbon: CarbonIntensityClient
@@ -44,17 +45,34 @@ struct LiveDataAggregator: LiveDataProvider {
     func fetch() async throws -> LiveData {
         var store = cache.read() ?? LiveDataStore()
         let nowDate = now()
-        let cutoff = nowDate.addingTimeInterval(-7 * 24 * 60 * 60)
 
-        // First-launch fallback windows when the cache is empty.
-        let genFrom    = store.latestGenerationTime ?? nowDate.addingTimeInterval(-24 * 60 * 60)
-        let emisFrom   = store.latestEmissionsTime  ?? nowDate.addingTimeInterval(-24 * 60 * 60)
-        let priceFrom  = store.latestPriceTime      ?? nowDate.addingTimeInterval(-24 * 60 * 60)
-        let embedFrom  = store.latestEmbeddedTime   ?? nowDate.addingTimeInterval(-24 * 60 * 60)
+        // The site's "Past week" averages the 7 most recent COMPLETE UTC days
+        // (excluding today), so the store must reach back to the UTC midnight
+        // 7 days before today's — up to ~8 days of data. When a source's cache
+        // doesn't reach that far (first launch, upgrade, long offline gap) we
+        // re-fetch its whole window once; afterwards refreshes are incremental
+        // from the newest cached bucket, as before.
+        let coverageStart = APITime.bucket(nowDate, interval: 24 * 60 * 60)
+            .addingTimeInterval(-7 * 24 * 60 * 60)
+        let cutoff = coverageStart
 
-        // Fetch the four sources in parallel.
+        func fetchFrom(latest: Date?, earliest: Date?) -> Date {
+            // 1h slack so a missing bucket right at the boundary doesn't force
+            // a full re-fetch on every refresh.
+            guard let latest, let earliest,
+                  earliest <= coverageStart.addingTimeInterval(60 * 60) else { return coverageStart }
+            return latest
+        }
+        let genFrom   = fetchFrom(latest: store.latestGenerationTime, earliest: store.earliestGenerationTime)
+        let emisFrom  = fetchFrom(latest: store.latestEmissionsTime,  earliest: store.earliestEmissionsTime)
+        let priceFrom = fetchFrom(latest: store.latestPriceTime,      earliest: store.earliestPriceTime)
+        let embedFrom = fetchFrom(latest: store.latestEmbeddedTime,   earliest: store.earliestEmbeddedTime)
+
+        // Fetch the four sources in parallel. (Market index is chunked — the
+        // endpoint rejects ranges over 7 days; FUELINST and Carbon Intensity
+        // both accept the full ~8-day window in one request.)
         async let genItems    = elexon.fetchFuelInst(from: genFrom, to: nowDate)
-        async let priceItems  = elexon.fetchMarketIndex(from: priceFrom, to: nowDate)
+        async let priceItems  = fetchMarketIndexChunked(from: priceFrom, to: nowDate)
         async let emisItems   = carbon.fetchRange(from: emisFrom, to: nowDate)
         async let embedItems  = neso.fetchEmbedded(from: embedFrom, to: nowDate)
 
@@ -106,76 +124,87 @@ struct LiveDataAggregator: LiveDataProvider {
         return compose(from: store, now: nowDate)
     }
 
+    /// The market-index endpoint rejects ranges over 7 days; fetch in chunks.
+    private func fetchMarketIndexChunked(from: Date, to: Date) async throws -> [ElexonClient.MarketIndexEnvelope.Item] {
+        var items: [ElexonClient.MarketIndexEnvelope.Item] = []
+        var chunkStart = from
+        let maxChunk: TimeInterval = 6.5 * 24 * 60 * 60
+        while chunkStart < to {
+            let chunkEnd = min(chunkStart.addingTimeInterval(maxChunk), to)
+            items += try await elexon.fetchMarketIndex(from: chunkStart, to: chunkEnd)
+            chunkStart = chunkEnd
+        }
+        return items
+    }
+
     // MARK: - Compose LiveData
 
     /// Turn the raw cache into the view-ready `LiveData`:
     /// - `current`: latest 5-min bucket of FUELINST data + matching 30-min
     ///   emissions/price/embedded buckets
-    /// - `day`:     last 24h, downsampled to 30-min (48 points)
-    /// - `week`:    last 7d, downsampled to 30-min (336 points; fills in over time)
+    /// - `day`:     the last 48 COMPLETE half-hours (matches the site)
+    /// - `week`:    the 7 most recent complete UTC days, excluding today
+    ///              (matches the site), in hourly buckets
     func compose(from store: LiveDataStore, now: Date) -> LiveData {
-        let dayStart  = APITime.bucket(now.addingTimeInterval(-24 * 60 * 60),         interval: 30 * 60)
-        let weekStart = APITime.bucket(now.addingTimeInterval(-7 * 24 * 60 * 60),     interval: 30 * 60)
+        // The site's day/week views average only COMPLETE half-hours: "Past day"
+        // is literally `ORDER BY time DESC LIMIT 48` over past_half_hours, whose
+        // newest row is floor((latest 5-min reading − 25 min)/30 min) — the same
+        // rule as the live anchor. Ending at `now` instead would include a
+        // partial trailing bucket (a single 5-min reading weighted as a full
+        // half-hour in the period mean), dragging fast-moving values — the
+        // interconnectors especially — ~0.01-0.02 GW off the site's figures.
+        let latestReading = store.generation.keys.max().flatMap { APITime.parse($0) } ?? now
+        let lastComplete = APITime.bucket(latestReading.addingTimeInterval(-25 * 60), interval: 30 * 60)
 
-        let day  = buildSeries(store: store, from: dayStart,  to: now, granularity: .halfHour)
-        let week = buildSeries(store: store, from: weekStart, to: now, granularity: .hour)
+        // "Past week" matches the site exactly: the mean of the 7 most recent
+        // COMPLETE UTC days, EXCLUDING the partial current day (Database.php:
+        // `past_days ORDER BY time DESC LIMIT 1,7` — skip today's row, take 7).
+        // Hourly buckets across complete days weight each day equally, just
+        // like her AVG over the 7 daily rows.
+        let todayMidnight = APITime.bucket(latestReading, interval: 24 * 60 * 60)
+        let weekStart = todayMidnight.addingTimeInterval(-7 * 24 * 60 * 60)
+
+        let dayStart = lastComplete.addingTimeInterval(-47 * 30 * 60)
+
+        let day  = buildSeries(store: store, from: dayStart,  to: lastComplete, granularity: .halfHour)
+        let week = buildSeries(store: store, from: weekStart,
+                               to: todayMidnight.addingTimeInterval(-60 * 60), granularity: .hour)
         let current = currentPoint(store: store, now: now)
         return LiveData(current: current, day: day, week: week)
     }
 
     // MARK: - Current point
 
-    /// Composes a `LiveGrid` that matches the website's "current" KPI selection:
-    /// the latest 5-minute FUELINST slot drives the displayed time, fuels and
-    /// interconnectors; the 30-minute bucket *containing* that slot supplies
-    /// emissions, price and embedded values. If the matching half-hour bucket
-    /// hasn't been published yet for any of those slower sources, we fall back
-    /// to its most recent available value (the site does the same — emissions
-    /// can lag generation by 30+ minutes and the displayed page never blanks).
-    /// Mirrors the website's "current" KPI selection exactly.
+    /// Composes a `LiveGrid` that matches the website's "current" state. The
+    /// site's rule (verbatim from her repo's `Database.php`): the live state is
+    /// `array_merge(latest past_half_hours row, latest past_five_minutes row)`.
+    /// The latest 5-minute FUELINST row supplies the displayed time, fuels and
+    /// interconnectors; the latest *complete* half-hour row supplies emissions,
+    /// price AND embedded solar/wind. A half-hour row only exists once complete:
+    /// `floor((latest five-minute time − 25 min) / 30 min)` — so a reading at
+    /// 14:00 pairs with the 13:30 half-hour even though NESO has already
+    /// published a fresher 14:00 forecast row (the site never uses it live).
     ///
-    /// The site reads from a MariaDB that's refreshed every 5 min by cron.
-    /// Empirically (`grid.iamkate.com` at 09:27 UTC showed `10:15am` BST, price
-    /// 88.63 for the 08:30 slot, emissions 85 for the same 08:30 slot) the
-    /// site's selection rules are:
+    /// Verified against the live site 2026-06-02 14:00Z: site Solar 8.21 = the
+    /// 13:30 embedded row (the 14:00 row said 7.82); price £94.77 + emissions
+    /// 129 also from 13:30. An earlier observation (09:15 slot showing the
+    /// 08:30 price/emissions) matches the same rule: floor(08:50 / 30) = 08:30.
     ///
-    /// 1. **Anchor**: the latest 30-min slot where **emissions** has data
-    ///    (emissions is the slowest of the three half-hour sources).
-    /// 2. **price**, **embedded wind/solar**: come from the same anchor slot.
-    ///    Even if the next half-hour's price is already published, the site
-    ///    uses the anchor's value for consistency.
-    /// 3. **Generation/transfers**: the latest FUELINST 5-min slot whose
-    ///    startTime is within the half-hour *after* the anchor — i.e. the
-    ///    current half-hour. This gives a fresh fuel mix without lagging by a
-    ///    full half-hour.
-    /// 4. **Displayed time** (`asOf`): the startTime of that 5-min FUELINST slot.
+    /// Sources that lag beyond the anchor (Carbon Intensity actuals can be
+    /// 30-60 min behind) fall back to their most recent value ≤ anchor — the
+    /// site does the equivalent by propagating the previous row's values
+    /// forward into newly created half-hour rows.
     private func currentPoint(store: LiveDataStore, now: Date) -> LiveGrid {
-        // (1) Anchor: latest emissions half-hour, fall back to price/embedded
-        //     if emissions has no data yet (early state).
-        guard let anchorKey = store.emissions.keys.max()
-            ?? store.price.keys.max()
-            ?? store.embedded.keys.max(),
-              let anchorStart = APITime.parse(anchorKey) else {
-            return fallback(store: store, now: now)
-        }
-        let anchorEnd = anchorStart.addingTimeInterval(30 * 60)
-
-        // (3) 5-min FUELINST slot: latest startTime strictly inside the
-        //     half-hour following the anchor (so we render the *current* fuel
-        //     mix, not the anchor's). If we don't have a slot there yet, walk
-        //     back to the latest available FUELINST slot.
-        let halfHourAfterAnchorEnd = anchorEnd.addingTimeInterval(30 * 60)
-        let candidateKeys = store.generation.keys
-            .filter { key in
-                guard let t = APITime.parse(key) else { return false }
-                return t >= anchorEnd && t < halfHourAfterAnchorEnd
-            }
-            .sorted()
-        let slotKey: String = candidateKeys.last ?? store.generation.keys.max() ?? ""
-        guard let slotStart = APITime.parse(slotKey),
+        // (1) The latest 5-min FUELINST slot: displayed time + fuel mix.
+        guard let slotKey = store.generation.keys.max(),
+              let slotStart = APITime.parse(slotKey),
               let mwByCode = store.generation[slotKey], !mwByCode.isEmpty else {
             return fallback(store: store, now: now)
         }
+
+        // (2) Anchor: the latest COMPLETE half-hour = floor((slot − 25min)/30min).
+        let anchorStart = APITime.bucket(slotStart.addingTimeInterval(-25 * 60), interval: 30 * 60)
+        let anchorKey = APITime.iso(anchorStart)
 
         // Decode FUELINST. Codes that don't map to a UI-visible FuelType
         // (BESS battery, OTHER misc) are deliberately dropped — the website's
@@ -192,18 +221,23 @@ struct LiveDataAggregator: LiveDataProvider {
             }
         }
 
-        // (2a) Embedded wind/solar — pull the half-hour bucket that *contains*
-        // the displayed 5-minute FUELINST slot. NESO forecasts publish ahead of
-        // time so embedded.keys.max() may be a future period; the site doesn't
-        // use those — it uses the period the displayed time sits inside.
-        let slotHalfHourKey = APITime.iso(APITime.bucket(slotStart, interval: 30 * 60))
-        if let embedded = store.embedded[slotHalfHourKey]
-            ?? store.embedded.keys.filter({ $0 <= slotHalfHourKey }).max().flatMap({ store.embedded[$0] }) {
+        // (3) Embedded wind/solar, price and emissions — all from the anchor
+        // half-hour (the latest complete one), exactly like the site. NESO
+        // publishes forecast rows ahead of time, but the live view must NOT
+        // use the period containing the slot — only the completed anchor.
+        if let embedded = store.embedded[anchorKey]
+            ?? store.embedded.keys.filter({ $0 <= anchorKey }).max().flatMap({ store.embedded[$0] }) {
             fuels[.wind,  default: 0] += Double(embedded.windMW)  / 1000.0
             fuels[.solar, default: 0] += Double(embedded.solarMW) / 1000.0
         }
-        let emissions = Double(store.emissions[anchorKey] ?? 0)
-        let price     = store.price[anchorKey] ?? 0
+        let emissions = Double(
+            store.emissions[anchorKey]
+                ?? store.emissions.keys.filter({ $0 <= anchorKey }).max().flatMap({ store.emissions[$0] })
+                ?? 0
+        )
+        let price = store.price[anchorKey]
+            ?? store.price.keys.filter({ $0 <= anchorKey }).max().flatMap({ store.price[$0] })
+            ?? 0
 
         // Match grid.iamkate.com: pumped storage is a TRANSFER, not generation.
         let pumped     = fuels[.pumped] ?? 0

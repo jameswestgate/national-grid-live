@@ -49,4 +49,24 @@ struct LiveDataStore: Codable, Equatable {
     var latestEmbeddedTime: Date? {
         embedded.keys.max().flatMap(APITime.parse(_:))
     }
+
+    // Earliest bucket per source — used to detect a "head gap" (the cache not
+    // reaching back to the start of the site-matching week window), e.g. on
+    // first launch, after an upgrade, or after a long offline stretch.
+
+    var earliestGenerationTime: Date? {
+        generation.keys.min().flatMap(APITime.parse(_:))
+    }
+
+    var earliestEmissionsTime: Date? {
+        emissions.keys.min().flatMap(APITime.parse(_:))
+    }
+
+    var earliestPriceTime: Date? {
+        price.keys.min().flatMap(APITime.parse(_:))
+    }
+
+    var earliestEmbeddedTime: Date? {
+        embedded.keys.min().flatMap(APITime.parse(_:))
+    }
 }
