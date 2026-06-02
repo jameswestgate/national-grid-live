@@ -5,11 +5,28 @@ import SwiftUI
 struct SettingsScreen: View {
     @AppStorage(AppSettings.generationVisualisationKey) private var visualisation: GenerationVisualisation = .bar
     @AppStorage(AppSettings.themeKey) private var theme: AppTheme = .system
+    @AppStorage(AppSettings.showGraphLegendsKey) private var showGraphLegends = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             List {
+                Section("Charts") {
+                    Picker("Style", selection: $visualisation) {
+                        ForEach(GenerationVisualisation.allCases) { option in
+                            Label(option.displayName, systemImage: option.systemImage).tag(option)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
+
+                // Headerless section: separates the toggle into its own card
+                // while it still reads as part of "Charts" above.
+                Section {
+                    Toggle("Show graph legends", isOn: $showGraphLegends)
+                }
+
                 Section("Appearance") {
                     Picker("Theme", selection: $theme) {
                         ForEach(AppTheme.allCases) { option in
@@ -18,20 +35,6 @@ struct SettingsScreen: View {
                     }
                     .pickerStyle(.inline)
                     .labelsHidden()
-                }
-
-                Section {
-                    Picker("Style", selection: $visualisation) {
-                        ForEach(GenerationVisualisation.allCases) { option in
-                            Label(option.displayName, systemImage: option.systemImage).tag(option)
-                        }
-                    }
-                    .pickerStyle(.inline)
-                    .labelsHidden()
-                } header: {
-                    Text("Generation chart")
-                } footer: {
-                    Text("How the generation mix is shown at the top of the Generation card.")
                 }
 
                 Section("Lock screen") {

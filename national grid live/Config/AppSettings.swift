@@ -65,6 +65,8 @@ enum AppSettings {
     static let generationVisualisationKey = "generationVisualisation"
     /// `@AppStorage` key for the appearance override. Default: `.system`.
     static let themeKey = "appTheme"
+    /// `@AppStorage` key for showing legends under the Historic charts. Default: off.
+    static let showGraphLegendsKey = "showGraphLegends"
 }
 
 /// A tap on the generation graphic (bar segment or donut slice). Shared by

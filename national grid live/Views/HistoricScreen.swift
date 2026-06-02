@@ -7,6 +7,8 @@ struct HistoricScreen: View {
     /// Pinned chart tooltip — persists after the touch lifts, cleared by
     /// tapping anywhere off the graphs or switching period.
     @State private var chartSelection = ChartSelectionState()
+    /// Settings → Historic charts → "Show graph legends" (default off).
+    @AppStorage(AppSettings.showGraphLegendsKey) private var showGraphLegends = false
 
     init() {
         // Screenshot hook: `-startPeriod day|week|year|all` selects the initial
@@ -129,13 +131,15 @@ struct HistoricScreen: View {
                     selectionState: chartSelection,
                     selectionID: "demand"
                 )
-                ChartLegend(entries: [
-                    .init(label: "Demand", color: .primary),
-                    .init(label: "Fossil fuels", color: FuelCategory.fossil.bannerColor),
-                    .init(label: "Renewables", color: FuelCategory.renewable.bannerColor),
-                    .init(label: "Other sources", color: FuelCategory.other.bannerColor),
-                    .init(label: "Transfers", color: Color(.systemGray2))
-                ])
+                if showGraphLegends {
+                    ChartLegend(entries: [
+                        .init(label: "Demand", color: .primary),
+                        .init(label: "Fossil fuels", color: FuelCategory.fossil.bannerColor),
+                        .init(label: "Renewables", color: FuelCategory.renewable.bannerColor),
+                        .init(label: "Other sources", color: FuelCategory.other.bannerColor),
+                        .init(label: "Transfers", color: Color(.systemGray2))
+                    ])
+                }
             }
         }
 
@@ -149,9 +153,11 @@ struct HistoricScreen: View {
                     selectionState: chartSelection,
                     selectionID: "generation"
                 )
-                ChartLegend(entries: MultiLineFuelChart.order.map {
-                    .init(label: $0.displayName, color: $0.swatch)
-                })
+                if showGraphLegends {
+                    ChartLegend(entries: MultiLineFuelChart.order.map {
+                        .init(label: $0.displayName, color: $0.swatch)
+                    })
+                }
             }
         }
 
@@ -166,9 +172,11 @@ struct HistoricScreen: View {
                     selectionState: chartSelection,
                     selectionID: "transfers"
                 )
-                ChartLegend(entries: Interconnector.allCases.map {
-                    .init(label: $0.displayName, color: $0.swatch)
-                } + [.init(label: "Pumped storage", color: MultiLineInterconnectorChart.pumpedColor)])
+                if showGraphLegends {
+                    ChartLegend(entries: Interconnector.allCases.map {
+                        .init(label: $0.displayName, color: $0.swatch)
+                    } + [.init(label: "Pumped storage", color: MultiLineInterconnectorChart.pumpedColor)])
+                }
             }
         }
     }
