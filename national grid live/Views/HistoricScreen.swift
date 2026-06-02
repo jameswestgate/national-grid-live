@@ -84,7 +84,8 @@ struct HistoricScreen: View {
                 points: timedPoints(series.price, dates: dates),
                 axis: axes.price,
                 xAxis: xAxis,
-                unitPrefix: "£"
+                unitPrefix: "£",
+                tooltipDecimals: 2
             )
         }
 

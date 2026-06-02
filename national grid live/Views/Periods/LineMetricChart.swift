@@ -109,6 +109,10 @@ struct LineMetricChart: View {
     var lineColor: Color = .primary
     var unitSuffix: String = ""
     var unitPrefix: String = ""
+    /// Decimal places in the selection tooltip (the site: price 2, emissions 0).
+    var tooltipDecimals: Int = 0
+
+    @State private var selection: Date?
 
     var body: some View {
         Chart {
@@ -122,11 +126,23 @@ struct LineMetricChart: View {
                     .interpolationMethod(.monotone)
                 }
             }
+            if let snapped = snappedSelection {
+                ChartSelectionMark(date: snapped.date, title: xAxis.tooltipTitle(for: snapped.date), rows: snapped.rows)
+            }
         }
+        .chartXSelection(value: $selection)
         .chartYScale(domain: axis.minimum...axis.maximum)
         .chartYAxis { ChartAxis.yAxisContent(for: axis, suffix: unitSuffix, prefix: unitPrefix) }
         .chartXAxis { ChartAxis.xAxisContent(for: xAxis) }
         .frame(height: ChartAxis.height)
+    }
+
+    private var snappedSelection: (date: Date, rows: [ChartSelectionRow])? {
+        guard let selection,
+              let i = chartNearestIndex(to: selection, in: points.map(\.date)),
+              let v = points[i].value else { return nil }
+        let value = "\(v < 0 ? "−" : "")\(unitPrefix)\(String(format: "%.\(tooltipDecimals)f", abs(v)))\(unitSuffix)"
+        return (points[i].date, [ChartSelectionRow(label: nil, color: nil, value: value)])
     }
 }
 
@@ -145,6 +161,10 @@ struct MultiLineSeriesChart: View {
     let axis: MetricAxis
     let xAxis: ChartXAxisStyle
     var unitSuffix: String = "GW"
+    /// Decimal places in the selection tooltip (the site's Demand graph uses 1).
+    var tooltipDecimals: Int = 1
+
+    @State private var selection: Date?
 
     var body: some View {
         Chart {
@@ -161,11 +181,28 @@ struct MultiLineSeriesChart: View {
                     }
                 }
             }
+            if let snapped = snappedSelection {
+                ChartSelectionMark(date: snapped.date, title: xAxis.tooltipTitle(for: snapped.date), rows: snapped.rows)
+            }
         }
+        .chartXSelection(value: $selection)
         .chartYScale(domain: axis.minimum...axis.maximum)
         .chartYAxis { ChartAxis.yAxisContent(for: axis, suffix: unitSuffix) }
         .chartXAxis { ChartAxis.xAxisContent(for: xAxis) }
         .frame(height: ChartAxis.height)
+    }
+
+    private var snappedSelection: (date: Date, rows: [ChartSelectionRow])? {
+        guard let selection, let i = chartNearestIndex(to: selection, in: dates) else { return nil }
+        let rows = lines.compactMap { line -> ChartSelectionRow? in
+            guard i < line.values.count, let v = line.values[i] else { return nil }
+            return ChartSelectionRow(
+                label: line.label,
+                color: line.color,
+                value: "\(v < 0 ? "−" : "")\(String(format: "%.\(tooltipDecimals)f", abs(v)))\(unitSuffix)"
+            )
+        }
+        return rows.isEmpty ? nil : (dates[i], rows)
     }
 }
 
@@ -173,6 +210,110 @@ struct TimedValue: Identifiable {
     let date: Date
     let value: Double?
     var id: Date { date }
+}
+
+// MARK: - Tap/scrub selection (the site's graph overlay, via chartXSelection)
+
+/// Nearest data-point index to a continuous selection date.
+func chartNearestIndex(to target: Date, in dates: [Date]) -> Int? {
+    dates.indices.min(by: {
+        abs(dates[$0].timeIntervalSince(target)) < abs(dates[$1].timeIntervalSince(target))
+    })
+}
+
+extension ChartXAxisStyle {
+    /// The tooltip's time heading, matching the site's per-tab overlay formats
+    /// ("8:45pm" / "Monday" / "14/07/2025" / "2025").
+    func tooltipTitle(for date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_GB")
+        switch self {
+        case .sixHourly:
+            f.dateFormat = "h:mma"
+            f.amSymbol = "am"
+            f.pmSymbol = "pm"
+        case .daily:     f.dateFormat = "EEEE"
+        case .quarterly: f.dateFormat = "dd/MM/yyyy"
+        case .yearly:    f.dateFormat = "yyyy"
+        }
+        return f.string(from: date)
+    }
+}
+
+struct ChartSelectionRow: Identifiable {
+    let label: String?
+    let color: Color?
+    let value: String
+    var id: String { (label ?? "") + value }
+}
+
+/// The selection indicator: a vertical rule at the snapped point with the
+/// floating value card annotated above it, clamped inside the plot.
+struct ChartSelectionMark: ChartContent {
+    let date: Date
+    let title: String
+    let rows: [ChartSelectionRow]
+
+    var body: some ChartContent {
+        RuleMark(x: .value("Selected", date))
+            .foregroundStyle(Color(.secondaryLabel).opacity(0.5))
+            .lineStyle(StrokeStyle(lineWidth: 1))
+            .annotation(
+                position: .top,
+                spacing: 4,
+                // Clamp the card fully INSIDE the plot on both axes — letting it
+                // escape vertically clipped it against the card heading.
+                overflowResolution: .init(x: .fit(to: .chart), y: .fit(to: .chart))
+            ) {
+                ChartSelectionCard(title: title, rows: rows)
+            }
+    }
+}
+
+/// The floating value card — the app's card surface (white), footnote
+/// typography, and the same caption grey and colour dots used by the cards
+/// and legends elsewhere.
+struct ChartSelectionCard: View {
+    let title: String
+    let rows: [ChartSelectionRow]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Color(.secondaryLabel))
+            if rows.count == 1, rows[0].label == nil {
+                Text(rows[0].value)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.primary)
+            } else {
+                Grid(alignment: .leading, horizontalSpacing: 6, verticalSpacing: 4) {
+                    ForEach(rows) { row in
+                        GridRow {
+                            Circle()
+                                .fill(row.color ?? .clear)
+                                .frame(width: 8, height: 8)
+                            Text(row.label ?? "")
+                                .font(.footnote)
+                                .foregroundStyle(Color(.secondaryLabel))
+                                .lineLimit(1)
+                            Text(row.value)
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.primary)
+                                .gridColumnAlignment(.trailing)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .background(Palette.contentBackground, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(Palette.graphLine, lineWidth: 0.5)
+        )
+        .shadow(color: .black.opacity(0.1), radius: 8, y: 2)
+    }
 }
 
 /// One legend entry: a small colour pill + the line's name.

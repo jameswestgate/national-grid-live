@@ -12,6 +12,8 @@ struct MultiLineFuelChart: View {
     /// Shared with the card's legend.
     static let order: [FuelType] = [.gas, .coal, .wind, .solar, .hydro, .nuclear, .biomass]
 
+    @State private var selection: Date?
+
     var body: some View {
         Chart {
             ForEach(Self.order, id: \.self) { fuel in
@@ -28,10 +30,27 @@ struct MultiLineFuelChart: View {
                     }
                 }
             }
+            if let snapped = snappedSelection {
+                ChartSelectionMark(date: snapped.date, title: xAxis.tooltipTitle(for: snapped.date), rows: snapped.rows)
+            }
         }
+        .chartXSelection(value: $selection)
         .chartYScale(domain: axis.minimum...axis.maximum)
         .chartYAxis { ChartAxis.yAxisContent(for: axis, suffix: "GW") }
         .chartXAxis { ChartAxis.xAxisContent(for: xAxis) }
         .frame(height: ChartAxis.height)
+    }
+
+    private var snappedSelection: (date: Date, rows: [ChartSelectionRow])? {
+        guard let selection, let i = chartNearestIndex(to: selection, in: dates) else { return nil }
+        let rows = Self.order.compactMap { fuel -> ChartSelectionRow? in
+            guard let arr = fuels[fuel], i < arr.count, let v = arr[i] else { return nil }
+            return ChartSelectionRow(
+                label: fuel.displayName,
+                color: fuel.swatch,
+                value: "\(v < 0 ? "−" : "")\(String(format: "%.2f", abs(v)))GW"
+            )
+        }
+        return rows.isEmpty ? nil : (dates[i], rows)
     }
 }
