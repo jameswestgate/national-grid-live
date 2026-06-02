@@ -55,28 +55,34 @@ enum ChartAxis {
         case .sixHourly:
             AxisMarks(values: .stride(by: .hour, count: 6)) { _ in
                 AxisGridLine().foregroundStyle(Palette.graphLine)
-                AxisValueLabel(format: .dateTime.hour(.defaultDigits(amPM: .abbreviated)).minute())
+                AxisValueLabel(format: .dateTime.hour(.defaultDigits(amPM: .abbreviated)).minute(), anchor: .top)
                     .font(.footnote)
                     .foregroundStyle(Color(.label))
             }
         case .daily:
+            // Health-style single-letter weekdays (M T W T F S S) — full names
+            // can't fit 7 slots unrotated; the tooltip carries the full day.
             AxisMarks(values: .stride(by: .day, count: 1)) { _ in
                 AxisGridLine().foregroundStyle(Palette.graphLine)
-                AxisValueLabel(format: .dateTime.weekday(.wide))
+                AxisValueLabel(format: .dateTime.weekday(.narrow), anchor: .top)
                     .font(.footnote)
                     .foregroundStyle(Color(.label))
             }
         case .quarterly:
+            // "Jul 25" — half the width of the site's 14/07/2025; the exact
+            // date stays in the tooltip.
             AxisMarks(values: .stride(by: .month, count: 3)) { _ in
                 AxisGridLine().foregroundStyle(Palette.graphLine)
-                AxisValueLabel(format: .dateTime.day(.twoDigits).month(.twoDigits).year())
+                AxisValueLabel(format: .dateTime.month(.abbreviated).year(.twoDigits), anchor: .top)
                     .font(.footnote)
                     .foregroundStyle(Color(.label))
             }
         case .yearly:
-            AxisMarks(values: .stride(by: .year, count: 1)) { _ in
+            // Self-thinning: yearly ticks while they fit, fewer as the
+            // all-time history grows or on narrower widths.
+            AxisMarks(values: .automatic(desiredCount: 6)) { _ in
                 AxisGridLine().foregroundStyle(Palette.graphLine)
-                AxisValueLabel(format: .dateTime.year())
+                AxisValueLabel(format: .dateTime.year(), anchor: .top)
                     .font(.footnote)
                     .foregroundStyle(Color(.label))
             }

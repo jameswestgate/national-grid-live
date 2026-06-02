@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     // Honour a `-startTab live|historic|about` launch argument (parsed into
@@ -8,17 +9,33 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selection) {
-            Tab("Live", systemImage: "bolt.fill", value: "live") {
+            Tab(value: "live") {
                 LiveScreen()
+            } label: {
+                Label { Text("Live") } icon: { Image(uiImage: Self.tabIcon("bolt.fill")) }
             }
-            Tab("Historic", systemImage: "chart.xyaxis.line", value: "historic") {
+            Tab(value: "historic") {
                 HistoricScreen()
+            } label: {
+                Label { Text("Historic") } icon: { Image(uiImage: Self.tabIcon("chart.xyaxis.line")) }
             }
-            Tab("About", systemImage: "info.circle", value: "about", role: .search) {
+            Tab(value: "about", role: .search) {
                 AboutScreen()
+            } label: {
+                Label { Text("About") } icon: { Image(uiImage: Self.tabIcon("info.circle")) }
             }
         }
         .preferredColorScheme(theme.colorScheme)
+    }
+
+    /// Tab icons at a slightly smaller point size than the system default —
+    /// a symbol-configured UIImage keeps its size inside the tab bar, where
+    /// SwiftUI font modifiers are ignored.
+    private static func tabIcon(_ name: String) -> UIImage {
+        UIImage(
+            systemName: name,
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .medium)
+        ) ?? UIImage()
     }
 }
 

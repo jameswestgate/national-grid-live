@@ -62,8 +62,9 @@ struct StatusBarView: View {
 
     private func kpi(label: String, value: String, unit: String, prefix: String = "") -> some View {
         VStack(spacing: 5) {
+            // Same style as the "% of demand" captions on the cards below.
             Text(label)
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
             HStack(alignment: .firstTextBaseline, spacing: 1) {

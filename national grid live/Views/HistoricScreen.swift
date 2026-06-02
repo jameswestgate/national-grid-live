@@ -34,6 +34,11 @@ struct HistoricScreen: View {
                             }
                         }
                         .pickerStyle(.segmented)
+                        // .large grows the segmented control's own height (the
+                        // native knob — frame() only pads around it); the padding
+                        // adds a little margin above and below.
+                        .controlSize(.large)
+                        .padding(.vertical, 4)
 
                         if let message = snapshotFailureMessage {
                             OfflineBanner(message: message) {
