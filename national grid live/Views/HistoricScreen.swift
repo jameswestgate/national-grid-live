@@ -4,6 +4,9 @@ struct HistoricScreen: View {
     @Environment(GridStore.self) private var store
     @State private var selection: Period = .day
     @State private var showSettings = false
+    /// Pinned chart tooltip — persists after the touch lifts, cleared by
+    /// tapping anywhere off the graphs or switching period.
+    @State private var chartSelection = ChartSelectionState()
 
     init() {
         // Screenshot hook: `-startPeriod day|week|year|all` selects the initial
@@ -51,6 +54,10 @@ struct HistoricScreen: View {
                 .toolbar(.hidden, for: .navigationBar)
                 .refreshable { await store.refresh() }
                 .settingsSheet($showSettings)
+                // A tap that lands anywhere other than a chart's own selection
+                // gesture dismisses the pinned tooltip.
+                .onTapGesture { chartSelection.clear() }
+                .onChange(of: selection) { _, _ in chartSelection.forceClear() }
             }
         }
     }
@@ -85,7 +92,9 @@ struct HistoricScreen: View {
                 axis: axes.price,
                 xAxis: xAxis,
                 unitPrefix: "£",
-                tooltipDecimals: 2
+                tooltipDecimals: 2,
+                selectionState: chartSelection,
+                selectionID: "price"
             )
         }
 
@@ -95,7 +104,9 @@ struct HistoricScreen: View {
                 points: timedPoints(series.emissions, dates: dates),
                 axis: axes.emissions,
                 xAxis: xAxis,
-                unitSuffix: "g"
+                unitSuffix: "g",
+                selectionState: chartSelection,
+                selectionID: "emissions"
             )
         }
 
@@ -114,7 +125,9 @@ struct HistoricScreen: View {
                         .init(label: "Transfers", color: Color(.systemGray2), values: lines.transfers)
                     ],
                     axis: axes.demand,
-                    xAxis: xAxis
+                    xAxis: xAxis,
+                    selectionState: chartSelection,
+                    selectionID: "demand"
                 )
                 ChartLegend(entries: [
                     .init(label: "Demand", color: .primary),
@@ -132,7 +145,9 @@ struct HistoricScreen: View {
                     dates: dates,
                     fuels: series.fuels,
                     axis: axes.generation,
-                    xAxis: xAxis
+                    xAxis: xAxis,
+                    selectionState: chartSelection,
+                    selectionID: "generation"
                 )
                 ChartLegend(entries: MultiLineFuelChart.order.map {
                     .init(label: $0.displayName, color: $0.swatch)
@@ -147,7 +162,9 @@ struct HistoricScreen: View {
                     interconnectors: series.interconnectors,
                     pumped: series.fuels[.pumped] ?? [],
                     axis: axes.transfers,
-                    xAxis: xAxis
+                    xAxis: xAxis,
+                    selectionState: chartSelection,
+                    selectionID: "transfers"
                 )
                 ChartLegend(entries: Interconnector.allCases.map {
                     .init(label: $0.displayName, color: $0.swatch)

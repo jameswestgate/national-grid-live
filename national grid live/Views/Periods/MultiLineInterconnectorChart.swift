@@ -10,6 +10,9 @@ struct MultiLineInterconnectorChart: View {
     let axis: MetricAxis
     let xAxis: ChartXAxisStyle
 
+    let selectionState: ChartSelectionState
+    let selectionID: String
+
     /// The site draws the pumped line in `.pumped { color: #09c; }`. Shared
     /// with the card's legend.
     static let pumpedColor = Color(red: 0.0, green: 0x99 / 255.0, blue: 0xCC / 255.0)
@@ -48,6 +51,9 @@ struct MultiLineInterconnectorChart: View {
             }
         }
         .chartXSelection(value: $selection)
+        .onChange(of: selection) { _, new in
+            if let new { selectionState.set(selectionID, date: new) }
+        }
         .chartYScale(domain: axis.minimum...axis.maximum)
         .chartYAxis { ChartAxis.yAxisContent(for: axis, suffix: "GW") }
         .chartXAxis { ChartAxis.xAxisContent(for: xAxis) }
@@ -55,7 +61,8 @@ struct MultiLineInterconnectorChart: View {
     }
 
     private var snappedSelection: (date: Date, rows: [ChartSelectionRow])? {
-        guard let selection, let i = chartNearestIndex(to: selection, in: dates) else { return nil }
+        guard let pinned = selectionState.date(for: selectionID),
+              let i = chartNearestIndex(to: pinned, in: dates) else { return nil }
         var rows = Interconnector.allCases.compactMap { ic -> ChartSelectionRow? in
             guard let arr = interconnectors[ic], i < arr.count, let v = arr[i] else { return nil }
             return ChartSelectionRow(

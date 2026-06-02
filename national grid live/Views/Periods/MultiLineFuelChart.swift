@@ -9,6 +9,9 @@ struct MultiLineFuelChart: View {
     let axis: MetricAxis
     let xAxis: ChartXAxisStyle
 
+    let selectionState: ChartSelectionState
+    let selectionID: String
+
     /// Shared with the card's legend.
     static let order: [FuelType] = [.gas, .coal, .wind, .solar, .hydro, .nuclear, .biomass]
 
@@ -35,6 +38,9 @@ struct MultiLineFuelChart: View {
             }
         }
         .chartXSelection(value: $selection)
+        .onChange(of: selection) { _, new in
+            if let new { selectionState.set(selectionID, date: new) }
+        }
         .chartYScale(domain: axis.minimum...axis.maximum)
         .chartYAxis { ChartAxis.yAxisContent(for: axis, suffix: "GW") }
         .chartXAxis { ChartAxis.xAxisContent(for: xAxis) }
@@ -42,7 +48,8 @@ struct MultiLineFuelChart: View {
     }
 
     private var snappedSelection: (date: Date, rows: [ChartSelectionRow])? {
-        guard let selection, let i = chartNearestIndex(to: selection, in: dates) else { return nil }
+        guard let pinned = selectionState.date(for: selectionID),
+              let i = chartNearestIndex(to: pinned, in: dates) else { return nil }
         let rows = Self.order.compactMap { fuel -> ChartSelectionRow? in
             guard let arr = fuels[fuel], i < arr.count, let v = arr[i] else { return nil }
             return ChartSelectionRow(

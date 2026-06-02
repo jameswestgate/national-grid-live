@@ -111,6 +111,8 @@ struct LineMetricChart: View {
     var unitPrefix: String = ""
     /// Decimal places in the selection tooltip (the site: price 2, emissions 0).
     var tooltipDecimals: Int = 0
+    let selectionState: ChartSelectionState
+    let selectionID: String
 
     @State private var selection: Date?
 
@@ -131,6 +133,9 @@ struct LineMetricChart: View {
             }
         }
         .chartXSelection(value: $selection)
+        .onChange(of: selection) { _, new in
+            if let new { selectionState.set(selectionID, date: new) }
+        }
         .chartYScale(domain: axis.minimum...axis.maximum)
         .chartYAxis { ChartAxis.yAxisContent(for: axis, suffix: unitSuffix, prefix: unitPrefix) }
         .chartXAxis { ChartAxis.xAxisContent(for: xAxis) }
@@ -138,8 +143,8 @@ struct LineMetricChart: View {
     }
 
     private var snappedSelection: (date: Date, rows: [ChartSelectionRow])? {
-        guard let selection,
-              let i = chartNearestIndex(to: selection, in: points.map(\.date)),
+        guard let pinned = selectionState.date(for: selectionID),
+              let i = chartNearestIndex(to: pinned, in: points.map(\.date)),
               let v = points[i].value else { return nil }
         let value = "\(v < 0 ? "−" : "")\(unitPrefix)\(String(format: "%.\(tooltipDecimals)f", abs(v)))\(unitSuffix)"
         return (points[i].date, [ChartSelectionRow(label: nil, color: nil, value: value)])
@@ -163,6 +168,8 @@ struct MultiLineSeriesChart: View {
     var unitSuffix: String = "GW"
     /// Decimal places in the selection tooltip (the site's Demand graph uses 1).
     var tooltipDecimals: Int = 1
+    let selectionState: ChartSelectionState
+    let selectionID: String
 
     @State private var selection: Date?
 
@@ -186,6 +193,9 @@ struct MultiLineSeriesChart: View {
             }
         }
         .chartXSelection(value: $selection)
+        .onChange(of: selection) { _, new in
+            if let new { selectionState.set(selectionID, date: new) }
+        }
         .chartYScale(domain: axis.minimum...axis.maximum)
         .chartYAxis { ChartAxis.yAxisContent(for: axis, suffix: unitSuffix) }
         .chartXAxis { ChartAxis.xAxisContent(for: xAxis) }
@@ -193,7 +203,8 @@ struct MultiLineSeriesChart: View {
     }
 
     private var snappedSelection: (date: Date, rows: [ChartSelectionRow])? {
-        guard let selection, let i = chartNearestIndex(to: selection, in: dates) else { return nil }
+        guard let pinned = selectionState.date(for: selectionID),
+              let i = chartNearestIndex(to: pinned, in: dates) else { return nil }
         let rows = lines.compactMap { line -> ChartSelectionRow? in
             guard i < line.values.count, let v = line.values[i] else { return nil }
             return ChartSelectionRow(
@@ -213,6 +224,40 @@ struct TimedValue: Identifiable {
 }
 
 // MARK: - Tap/scrub selection (the site's graph overlay, via chartXSelection)
+
+/// Pinned chart selection shared by the Historic screen's charts. Swift Charts
+/// clears `chartXSelection` the moment the touch lifts, which is poor for
+/// accessibility — so each chart copies its live selection in here, where it
+/// PERSISTS until the user taps somewhere off the graph (or selects on another
+/// chart, which moves the single tooltip there).
+@Observable
+final class ChartSelectionState {
+    private(set) var chartID: String?
+    private(set) var date: Date?
+    private var lastSet = Date.distantPast
+
+    /// Pin (or move) the tooltip to `id` at `date`.
+    func set(_ id: String, date: Date) {
+        chartID = id
+        self.date = date
+        lastSet = Date()
+    }
+
+    /// The pinned date if this chart owns the tooltip.
+    func date(for id: String) -> Date? { chartID == id ? date : nil }
+
+    /// Clear from a background tap. Ignores taps that land together with a
+    /// fresh selection (parent and chart gestures can both fire on one touch).
+    func clear() {
+        guard Date().timeIntervalSince(lastSet) > 0.35 else { return }
+        forceClear()
+    }
+
+    func forceClear() {
+        chartID = nil
+        date = nil
+    }
+}
 
 /// Nearest data-point index to a continuous selection date.
 func chartNearestIndex(to target: Date, in dates: [Date]) -> Int? {
