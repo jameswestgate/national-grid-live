@@ -166,9 +166,11 @@ struct LiveDataAggregator: LiveDataProvider {
 
         let dayStart = lastComplete.addingTimeInterval(-47 * 30 * 60)
 
+        // The week series is 7 DAILY points — the same `past_days` rows the
+        // site's week tab plots (its graphs label one point per weekday).
         let day  = buildSeries(store: store, from: dayStart,  to: lastComplete, granularity: .halfHour)
         let week = buildSeries(store: store, from: weekStart,
-                               to: todayMidnight.addingTimeInterval(-60 * 60), granularity: .hour)
+                               to: todayMidnight.addingTimeInterval(-24 * 60 * 60), granularity: .day)
         let current = currentPoint(store: store, now: now)
         return LiveData(current: current, day: day, week: week)
     }
@@ -276,7 +278,12 @@ struct LiveDataAggregator: LiveDataProvider {
                               from: Date,
                               to: Date,
                               granularity: Granularity) -> TimeSeries {
-        let stride: TimeInterval = (granularity == .halfHour) ? 30 * 60 : 60 * 60
+        let stride: TimeInterval = switch granularity {
+        case .halfHour: 30 * 60
+        case .hour:     60 * 60
+        case .day:      24 * 60 * 60
+        case .month:    24 * 60 * 60   // not used for live series
+        }
         var bucketStart = APITime.bucket(from, interval: stride)
         let endBucket = APITime.bucket(to, interval: stride)
 
@@ -291,7 +298,11 @@ struct LiveDataAggregator: LiveDataProvider {
 
         while bucketStart <= endBucket {
             let bucketEnd = bucketStart.addingTimeInterval(stride)
-            dates.append(APITime.iso(bucketStart))
+            // Date-string format must match the granularity so
+            // `TimeSeries.parsedDates` can round-trip it.
+            dates.append(granularity == .day
+                ? String(APITime.iso(bucketStart).prefix(10))
+                : APITime.iso(bucketStart))
 
             let agg = aggregate(store: store, bucketStart: bucketStart, bucketEnd: bucketEnd)
             price.append(agg.price)

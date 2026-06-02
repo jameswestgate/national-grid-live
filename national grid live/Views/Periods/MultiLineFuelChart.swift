@@ -1,12 +1,16 @@
 import SwiftUI
 import Charts
 
+/// The site's "Generation" graph: one line per fuel. Pumped storage is NOT a
+/// generation line on the site (it lives in the Transfers graph).
 struct MultiLineFuelChart: View {
     let dates: [Date]
     let fuels: [FuelType: [Double?]]
-    let granularity: Granularity
+    let axis: MetricAxis
+    let xAxis: ChartXAxisStyle
 
-    private static let order: [FuelType] = [.gas, .coal, .wind, .solar, .hydro, .nuclear, .biomass, .pumped]
+    /// Shared with the card's legend.
+    static let order: [FuelType] = [.gas, .coal, .wind, .solar, .hydro, .nuclear, .biomass]
 
     var body: some View {
         Chart {
@@ -25,21 +29,9 @@ struct MultiLineFuelChart: View {
                 }
             }
         }
-        .chartYAxis {
-            AxisMarks(position: .leading) { value in
-                AxisGridLine().foregroundStyle(Palette.graphLine)
-                AxisValueLabel {
-                    if let d = value.as(Double.self) {
-                        Text("\(Int(d))GW")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-        }
-        .chartXAxis {
-            ChartAxis.xAxisContent(for: granularity)
-        }
-        .frame(height: 200)
+        .chartYScale(domain: axis.minimum...axis.maximum)
+        .chartYAxis { ChartAxis.yAxisContent(for: axis, suffix: "GW") }
+        .chartXAxis { ChartAxis.xAxisContent(for: xAxis) }
+        .frame(height: ChartAxis.height)
     }
 }
