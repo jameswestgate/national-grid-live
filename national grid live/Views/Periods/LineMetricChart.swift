@@ -58,6 +58,7 @@ enum ChartAxis {
                 AxisValueLabel(format: .dateTime.hour(.defaultDigits(amPM: .abbreviated)).minute(), anchor: .top)
                     .font(.footnote)
                     .foregroundStyle(Color(.label))
+                    .offset(y: 5)   // a little air below the plot
             }
         case .daily:
             // Health-style single-letter weekdays (M T W T F S S) — full names
@@ -67,6 +68,7 @@ enum ChartAxis {
                 AxisValueLabel(format: .dateTime.weekday(.narrow), anchor: .top)
                     .font(.footnote)
                     .foregroundStyle(Color(.label))
+                    .offset(y: 5)   // a little air below the plot
             }
         case .quarterly:
             // "Jul 25" — half the width of the site's 14/07/2025; the exact
@@ -76,6 +78,7 @@ enum ChartAxis {
                 AxisValueLabel(format: .dateTime.month(.abbreviated).year(.twoDigits), anchor: .top)
                     .font(.footnote)
                     .foregroundStyle(Color(.label))
+                    .offset(y: 5)   // a little air below the plot
             }
         case .yearly:
             // Self-thinning: yearly ticks while they fit, fewer as the
@@ -85,6 +88,7 @@ enum ChartAxis {
                 AxisValueLabel(format: .dateTime.year(), anchor: .top)
                     .font(.footnote)
                     .foregroundStyle(Color(.label))
+                    .offset(y: 5)   // a little air below the plot
             }
         }
     }
@@ -101,6 +105,7 @@ enum ChartAxis {
                         .foregroundStyle(Color(.secondaryLabel))
                 }
             }
+            .offset(x: -4)   // a little air left of the plot
         }
     }
 }
@@ -152,8 +157,8 @@ struct LineMetricChart: View {
         guard let pinned = selectionState.date(for: selectionID),
               let i = chartNearestIndex(to: pinned, in: points.map(\.date)),
               let v = points[i].value else { return nil }
-        let value = "\(v < 0 ? "−" : "")\(unitPrefix)\(String(format: "%.\(tooltipDecimals)f", abs(v)))\(unitSuffix)"
-        return (points[i].date, [ChartSelectionRow(label: nil, color: nil, value: value)])
+        let value = "\(v < 0 ? "−" : "")\(unitPrefix)\(String(format: "%.\(tooltipDecimals)f", abs(v)))"
+        return (points[i].date, [ChartSelectionRow(label: nil, color: nil, value: value, unit: unitSuffix)])
     }
 }
 
@@ -216,7 +221,8 @@ struct MultiLineSeriesChart: View {
             return ChartSelectionRow(
                 label: line.label,
                 color: line.color,
-                value: "\(v < 0 ? "−" : "")\(String(format: "%.\(tooltipDecimals)f", abs(v)))\(unitSuffix)"
+                value: "\(v < 0 ? "−" : "")\(String(format: "%.\(tooltipDecimals)f", abs(v)))",
+                unit: unitSuffix
             )
         }
         return rows.isEmpty ? nil : (dates[i], rows)
@@ -294,8 +300,30 @@ extension ChartXAxisStyle {
 struct ChartSelectionRow: Identifiable {
     let label: String?
     let color: Color?
+    /// The figure incl. sign / prefix (e.g. "2.90", "£104.29", "171").
     let value: String
-    var id: String { (label ?? "") + value }
+    /// Unit suffix rendered smaller + grey (e.g. "GW", "g"); "" for none.
+    var unit: String = ""
+    var id: String { (label ?? "") + value + unit }
+}
+
+/// The number + a smaller, grey unit suffix — shared by both tooltip layouts.
+private struct TooltipValue: View {
+    let value: String
+    let unit: String
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 1) {
+            Text(value)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.primary)
+            if !unit.isEmpty {
+                Text(unit)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(Color(.secondaryLabel))
+            }
+        }
+    }
 }
 
 /// The selection indicator: a vertical rule at the snapped point with the
@@ -328,42 +356,66 @@ struct ChartSelectionCard: View {
     let title: String
     let rows: [ChartSelectionRow]
 
+    /// Time / title style, reused for the unit heading so they match exactly.
+    private var headingFont: Font { .caption2.weight(.semibold) }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text(title)
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(Color(.secondaryLabel))
-            if rows.count == 1, rows[0].label == nil {
-                Text(rows[0].value)
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.primary)
+        let isSingle = rows.count == 1 && rows[0].label == nil
+        // When every row shares one unit (the GW charts), show it ONCE as a
+        // top-right heading — same style as the time — and drop it from the rows.
+        let sharedUnit = rows.first?.unit ?? ""
+        let unitHeading = !isSingle && !sharedUnit.isEmpty && rows.allSatisfy { $0.unit == sharedUnit }
+
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 8) {
+                Text(title)
+                    .font(headingFont)
+                    .foregroundStyle(Color(.secondaryLabel))
+                if unitHeading {
+                    Spacer(minLength: 8)
+                    Text(sharedUnit)
+                        .font(headingFont)
+                        .foregroundStyle(Color(.secondaryLabel))
+                }
+            }
+            if isSingle {
+                TooltipValue(value: rows[0].value, unit: rows[0].unit)
             } else {
-                Grid(alignment: .leading, horizontalSpacing: 6, verticalSpacing: 4) {
+                Grid(alignment: .leading, horizontalSpacing: 5, verticalSpacing: 2) {
                     ForEach(rows) { row in
                         GridRow {
                             Circle()
                                 .fill(row.color ?? .clear)
-                                .frame(width: 8, height: 8)
+                                .frame(width: 7, height: 7)
                             Text(row.label ?? "")
-                                .font(.footnote)
+                                .font(.caption2)
                                 .foregroundStyle(Color(.secondaryLabel))
                                 .lineLimit(1)
-                            Text(row.value)
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.primary)
-                                .gridColumnAlignment(.trailing)
+                            // Unit shown once in the heading → render just the number.
+                            if unitHeading {
+                                Text(row.value)
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(.primary)
+                                    .gridColumnAlignment(.trailing)
+                            } else {
+                                TooltipValue(value: row.value, unit: row.unit)
+                                    .gridColumnAlignment(.trailing)
+                            }
                         }
                     }
                 }
             }
         }
-        .padding(10)
-        .background(Palette.contentBackground, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 7)
+        // ~10% transparent so the lines stay faintly visible through the card
+        // without hurting the text's legibility.
+        .background(Palette.contentBackground.opacity(0.9), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
                 .strokeBorder(Palette.graphLine, lineWidth: 0.5)
         )
-        .shadow(color: .black.opacity(0.1), radius: 8, y: 2)
+        .shadow(color: .black.opacity(0.1), radius: 6, y: 2)
     }
 }
 

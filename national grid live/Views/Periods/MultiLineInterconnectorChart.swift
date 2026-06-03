@@ -65,17 +65,21 @@ struct MultiLineInterconnectorChart: View {
               let i = chartNearestIndex(to: pinned, in: dates) else { return nil }
         var rows = Interconnector.allCases.compactMap { ic -> ChartSelectionRow? in
             guard let arr = interconnectors[ic], i < arr.count, let v = arr[i] else { return nil }
+            // Skip lines that round to 0.00 — they only add clutter.
+            guard abs(v) >= 0.005 else { return nil }
             return ChartSelectionRow(
                 label: ic.displayName,
                 color: ic.swatch,
-                value: "\(v < 0 ? "−" : "")\(String(format: "%.2f", abs(v)))GW"
+                value: "\(v < 0 ? "−" : "")\(String(format: "%.2f", abs(v)))",
+                unit: "GW"
             )
         }
-        if i < pumped.count, let v = pumped[i] {
+        if i < pumped.count, let v = pumped[i], abs(v) >= 0.005 {
             rows.append(ChartSelectionRow(
                 label: "Pumped storage",
                 color: Self.pumpedColor,
-                value: "\(v < 0 ? "−" : "")\(String(format: "%.2f", abs(v)))GW"
+                value: "\(v < 0 ? "−" : "")\(String(format: "%.2f", abs(v)))",
+                unit: "GW"
             ))
         }
         return rows.isEmpty ? nil : (dates[i], rows)

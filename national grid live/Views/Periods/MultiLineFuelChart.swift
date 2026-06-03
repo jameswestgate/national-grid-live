@@ -52,10 +52,13 @@ struct MultiLineFuelChart: View {
               let i = chartNearestIndex(to: pinned, in: dates) else { return nil }
         let rows = Self.order.compactMap { fuel -> ChartSelectionRow? in
             guard let arr = fuels[fuel], i < arr.count, let v = arr[i] else { return nil }
+            // Skip lines that round to 0.00 (e.g. coal) — they only add clutter.
+            guard abs(v) >= 0.005 else { return nil }
             return ChartSelectionRow(
                 label: fuel.displayName,
                 color: fuel.swatch,
-                value: "\(v < 0 ? "−" : "")\(String(format: "%.2f", abs(v)))GW"
+                value: "\(v < 0 ? "−" : "")\(String(format: "%.2f", abs(v)))",
+                unit: "GW"
             )
         }
         return rows.isEmpty ? nil : (dates[i], rows)

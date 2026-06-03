@@ -37,9 +37,18 @@ struct SourceRow: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text(gwText)
-                    .font((emphasised ? Font.body : .subheadline).weight(.semibold))
-                    .foregroundStyle(.primary)
+                // Number bold/primary with a smaller grey "GW" suffix — matches
+                // the KPI strip and the card headers used everywhere else.
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(gwNumber)
+                        .font((emphasised ? Font.body : .subheadline).weight(.semibold))
+                        .foregroundStyle(.primary)
+                    if gw != nil {
+                        Text("GW")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Text(percentText)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -64,10 +73,11 @@ struct SourceRow: View {
         return min(max(abs(percent), 0), 1)
     }
 
-    private var gwText: String {
+    /// Just the figure (no unit) — the "GW" suffix is a separate, smaller Text.
+    private var gwNumber: String {
         guard let gw else { return "—" }
         let sign = gw < 0 ? "−" : ""
-        return sign + String(format: "%.2f GW", abs(gw))
+        return sign + String(format: "%.2f", abs(gw))
     }
 
     private var percentText: String {
