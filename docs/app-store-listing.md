@@ -60,12 +60,13 @@ electricity,energy,grid,power,carbon,emissions,wind,solar,renewable,nuclear,gas,
 ```
 (90 chars. "National Grid" / "Live" omitted — already indexed from the title.)
 
-## URLs
-- **Privacy Policy URL:** https://jameswestgate.github.io/national-grid-live-tools/privacy.html
-- **Support URL:** https://jameswestgate.github.io/national-grid-live-tools/support.html  _(directs to GitHub issues; no email by choice)_
+## URLs  (hosted on the main repo's GitHub Pages, from /docs)
+- **Privacy Policy URL:** https://jameswestgate.github.io/national-grid-live/privacy.html
+- **Support URL:** https://jameswestgate.github.io/national-grid-live/support.html  _(directs to GitHub issues; no email by choice)_
 - **Marketing URL:** _(optional)_ — grid.iamkate.com is Kate Morley's site, NOT ours — do not use it; leave blank or point to your own page
 
-⚠️ Both pages link to `github.com/jameswestgate/national-grid-live/issues` — that repo **must be public** or the links 404. Both pages deploy on the next Pages build of the tools repo.
+⚠️ Both pages link to `github.com/jameswestgate/national-grid-live/issues` — that repo **must be public** or the links 404.
+⚠️ Enable Pages on `national-grid-live`: Settings → Pages → Source "Deploy from a branch" → `main` / `/docs`. After that, every push to main auto-deploys (GitHub's built-in pages-build-deployment; no workflow needed). NB this serves the whole `docs/` folder publicly (incl. this listing .md + screenshots) — fine, but be aware.
 
 ## Categories
 - **Primary:** Utilities  _(matches `LSApplicationCategoryType` in the build)_
