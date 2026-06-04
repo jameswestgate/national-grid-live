@@ -62,8 +62,10 @@ electricity,energy,grid,power,carbon,emissions,wind,solar,renewable,nuclear,gas,
 
 ## URLs
 - **Privacy Policy URL:** https://jameswestgate.github.io/national-grid-live-tools/privacy.html
-- **Support URL:** _(required)_ — e.g. a simple GitHub page or repo README; needs to exist before submission
+- **Support URL:** https://jameswestgate.github.io/national-grid-live-tools/support.html  _(directs to GitHub issues; no email by choice)_
 - **Marketing URL:** _(optional)_ — grid.iamkate.com is Kate Morley's site, NOT ours — do not use it; leave blank or point to your own page
+
+⚠️ Both pages link to `github.com/jameswestgate/national-grid-live/issues` — that repo **must be public** or the links 404. Both pages deploy on the next Pages build of the tools repo.
 
 ## Categories
 - **Primary:** Utilities  _(matches `LSApplicationCategoryType` in the build)_
@@ -98,6 +100,6 @@ needs no special configuration to review — just launch and the live data loads
 
 ### ⚠️ Before submitting — still your action
 - Apple Developer Program enrolment + create the app record in App Store Connect
-- Set the **CONTACT_EMAIL** placeholder in privacy.html and deploy Pages
-- Provide a **Support URL** that resolves
+- Deploy the tools-repo Pages so privacy.html + support.html are live; ensure the `national-grid-live` repo is **public** (issues links)
+- Fill **App Review Information → Contact** (private reviewer contact: name/phone/email — always required, separate from the public no-email support page)
 - Confirm distribution signing (automatic signing in Xcode once enrolled)
