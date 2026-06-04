@@ -124,6 +124,53 @@ struct LiveDataAggregator: LiveDataProvider {
         return compose(from: store, now: nowDate)
     }
 
+    /// Lightweight path for **widgets**: fetch only a small recent window from
+    /// each source and compose ONLY the current `LiveGrid` — no day/week series
+    /// and no large on-disk store. The full `fetch()` pulls ~8 days of FUELINST
+    /// (~8 MB) and builds two `TimeSeries`, which would blow a widget
+    /// extension's tight (~30 MB) memory budget; a few hours is a few hundred
+    /// rows. Reuses `currentPoint(store:now:)` verbatim so the numbers match the
+    /// app and grid.iamkate.com exactly. Reads/writes nothing on disk.
+    func fetchCurrentOnly(window: TimeInterval = 3 * 60 * 60) async throws -> LiveGrid {
+        let nowDate = now()
+        let from = nowDate.addingTimeInterval(-window)
+        var store = LiveDataStore()
+
+        // The window is < 7 days, so market index needs no chunking.
+        async let genItems   = elexon.fetchFuelInst(from: from, to: nowDate)
+        async let priceItems = elexon.fetchMarketIndex(from: from, to: nowDate)
+        async let emisItems  = carbon.fetchRange(from: from, to: nowDate)
+        async let embedItems = neso.fetchEmbedded(from: from, to: nowDate)
+
+        // Any one source failing is non-fatal — compose with whatever arrived.
+        if let items = try? await genItems {
+            for item in items {
+                let bucket = APITime.bucket(APITime.parse(item.startTime) ?? nowDate, interval: 5 * 60)
+                store.generation[APITime.iso(bucket), default: [:]][item.fuelType] = item.generation
+            }
+        }
+        if let items = try? await emisItems {
+            for item in items {
+                guard let v = item.value, let f = APITime.parse(item.from) else { continue }
+                store.emissions[APITime.iso(APITime.bucket(f, interval: 30 * 60))] = v
+            }
+        }
+        if let items = try? await priceItems {
+            for item in items {
+                guard let f = APITime.parse(item.startTime) else { continue }
+                store.price[APITime.iso(APITime.bucket(f, interval: 30 * 60))] = item.price
+            }
+        }
+        if let rows = try? await embedItems {
+            for row in rows {
+                store.embedded[APITime.iso(APITime.bucket(row.timestamp, interval: 30 * 60))] =
+                    .init(windMW: row.embeddedWindMW, solarMW: row.embeddedSolarMW)
+            }
+        }
+
+        return currentPoint(store: store, now: nowDate)
+    }
+
     /// The market-index endpoint rejects ranges over 7 days; fetch in chunks.
     private func fetchMarketIndexChunked(from: Date, to: Date) async throws -> [ElexonClient.MarketIndexEnvelope.Item] {
         var items: [ElexonClient.MarketIndexEnvelope.Item] = []

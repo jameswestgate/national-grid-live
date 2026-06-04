@@ -38,9 +38,11 @@ struct SettingsScreen: View {
                 }
 
                 Section("Lock screen") {
-                    Label("Widget", systemImage: "rectangle.on.rectangle.angled")
-                        .foregroundStyle(.secondary)
-                        .badge("Coming soon")
+                    NavigationLink {
+                        LockScreenWidgetHelp()
+                    } label: {
+                        Label("Add a widget", systemImage: "rectangle.on.rectangle.angled")
+                    }
                 }
             }
             .navigationTitle("Settings")
@@ -51,6 +53,44 @@ struct SettingsScreen: View {
                 }
             }
         }
+    }
+}
+
+/// Walkthrough for adding the Lock Screen widgets. iOS gives apps no way to
+/// place a widget programmatically — the user adds it from the Lock Screen — so
+/// this screen simply explains the gesture (the "Coming soon" row used to be a
+/// dead placeholder).
+private struct LockScreenWidgetHelp: View {
+    private let steps = [
+        "Touch and hold your Lock Screen, then tap **Customise**.",
+        "Tap the Lock Screen, then tap the widget area **below the time**.",
+        "Choose **National Grid: Live**, then add the **Demand** or **Generation mix** widget.",
+    ]
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
+                    HStack(alignment: .top, spacing: 14) {
+                        Text("\(index + 1)")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 26, height: 26)
+                            .background(Circle().fill(Color.accentColor))
+                        Text(.init(step))
+                            .font(.subheadline)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.vertical, 2)
+                }
+            } header: {
+                Text("Add a widget")
+            } footer: {
+                Text("Two widgets are available: **Demand** (Demand = Generation + Transfers) and **Generation mix** (the live fuel breakdown and renewable share). They refresh automatically.")
+            }
+        }
+        .navigationTitle("Lock Screen widget")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

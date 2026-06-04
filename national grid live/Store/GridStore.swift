@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import WidgetKit
 
 @Observable
 final class GridStore {
@@ -47,6 +48,10 @@ final class GridStore {
         do {
             live = try await liveProvider.fetch()
             liveState = .loaded
+            // Nudge the Lock Screen widgets to re-fetch while the app is open,
+            // so they're fresh the next time the user glances at the lock
+            // screen. No-op if no widgets are installed.
+            WidgetCenter.shared.reloadAllTimelines()
         } catch {
             // Keep cached `live` visible; mark state as failed so UI can show a banner.
             liveState = .failed(error.localizedDescription)

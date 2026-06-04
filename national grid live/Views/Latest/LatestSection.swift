@@ -4,6 +4,7 @@ import SwiftUI
 /// Source-agnostic — takes a `PeriodAverages` so the same view powers the Live
 /// snapshot and the historic period averages.
 struct LatestSection: View {
+    @AppStorage(AppSettings.generationVisualisationKey) private var visualisation: GenerationVisualisation = .bar
     let stats: PeriodAverages
     /// Caption rendered directly under the generation card, e.g.
     /// ("Generation time", "1:45pm") on Live or ("Period", "Past day") on Historic.
@@ -32,6 +33,10 @@ struct LatestSection: View {
 
     private var interconnectorsCard: some View {
         let total = stats.interconnectorsTotal
+        let flows = Interconnector.allCases.map { ($0, stats.interconnectors[$0] ?? 0) }
+        // The interconnector bar has no donut equivalent, so it only appears
+        // under the "Bar" chart style — hidden for Donut and None.
+        let showBar = visualisation == .bar && flows.contains { abs($0.1) > 0.0001 }
         return SourceListCard(
             title: "Interconnectors",
             totalGW: total,
@@ -48,7 +53,14 @@ struct LatestSection: View {
                         gw: gw,
                         percent: stats.share(gw)
                     )
-                }
+                },
+            headerGraphic: showBar
+                ? AnyView(InterconnectorBars(
+                    flows: flows.map { (interconnector: $0.0, gw: $0.1) },
+                    // Row ids are the interconnector rawValue (see items above).
+                    onSelect: { ic in onScrollTo?(ic.rawValue) }
+                  ))
+                : nil
         )
     }
 

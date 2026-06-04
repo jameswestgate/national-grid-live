@@ -17,6 +17,9 @@ struct SourceListCard: View {
     var totalGW: Double? = nil
     var caption: String? = nil
     let items: [SourceListItem]
+    /// Optional graphic shown between the header and the rows (e.g. the
+    /// Interconnectors diverging bar). The Storage card passes none.
+    var headerGraphic: AnyView? = nil
 
     var body: some View {
         Card {
@@ -25,6 +28,12 @@ struct SourceListCard: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 16)
                     .padding(.bottom, 14)
+
+                if let headerGraphic {
+                    headerGraphic
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 18)
+                }
 
                 ForEach(items) { item in
                     Divider().padding(.leading, 16)
@@ -37,6 +46,9 @@ struct SourceListCard: View {
                         emphasised: true
                     )
                     .padding(16)
+                    // Scroll target for the header graphic (e.g. an
+                    // interconnector bar segment tapped above).
+                    .id(item.id)
                 }
             }
         }

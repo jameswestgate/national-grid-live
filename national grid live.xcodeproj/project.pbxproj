@@ -6,14 +6,94 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BD46B9702FD2316100974519 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD46B96F2FD2316100974519 /* WidgetKit.framework */; };
+		BD46B9722FD2316100974519 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD46B9712FD2316100974519 /* SwiftUI.framework */; };
+		BD46B97F2FD2316400974519 /* NationalGridWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BD46B96D2FD2316000974519 /* NationalGridWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BD46B97D2FD2316400974519 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BD46B0B12FC247D700974519 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BD46B96C2FD2316000974519;
+			remoteInfo = NationalGridWidgetsExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BD46B9802FD2316400974519 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BD46B97F2FD2316400974519 /* NationalGridWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		BD46B0B92FC247D700974519 /* national grid live.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "national grid live.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD46B96D2FD2316000974519 /* NationalGridWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NationalGridWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD46B96F2FD2316100974519 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		BD46B9712FD2316100974519 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BD46B9832FD2316400974519 /* Exceptions for "NationalGridWidgets" folder in "NationalGridWidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BD46B96C2FD2316000974519 /* NationalGridWidgetsExtension */;
+		};
+		BD46B9982FD2368100974519 /* Exceptions for "national grid live" folder in "NationalGridWidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/FuelType.swift,
+				Models/LiveData.swift,
+				Models/LiveGrid.swift,
+				Models/Period.swift,
+				Models/PeriodAverages.swift,
+				Models/Snapshot.swift,
+				Models/TimeSeries.swift,
+				Networking/CachingProviders.swift,
+				Networking/CarbonIntensityClient.swift,
+				Networking/ElexonClient.swift,
+				Networking/FuelCodeMap.swift,
+				Networking/HTTPJSONClient.swift,
+				Networking/JSONCache.swift,
+				Networking/LiveDataAggregator.swift,
+				Networking/LiveDataCache.swift,
+				Networking/NESOClient.swift,
+				Networking/Providers.swift,
+				Networking/URLSessionSnapshotProvider.swift,
+				Theme/Palette.swift,
+				Theme/ScreenGradient.swift,
+			);
+			target = BD46B96C2FD2316000974519 /* NationalGridWidgetsExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		BD46B0BB2FC247D700974519 /* national grid live */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BD46B9982FD2368100974519 /* Exceptions for "national grid live" folder in "NationalGridWidgetsExtension" target */,
+			);
 			path = "national grid live";
+			sourceTree = "<group>";
+		};
+		BD46B9732FD2316200974519 /* NationalGridWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BD46B9832FD2316400974519 /* Exceptions for "NationalGridWidgets" folder in "NationalGridWidgetsExtension" target */,
+			);
+			path = NationalGridWidgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,6 +106,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BD46B96A2FD2316000974519 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BD46B9722FD2316100974519 /* SwiftUI.framework in Frameworks */,
+				BD46B9702FD2316100974519 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -33,6 +122,8 @@
 			isa = PBXGroup;
 			children = (
 				BD46B0BB2FC247D700974519 /* national grid live */,
+				BD46B9732FD2316200974519 /* NationalGridWidgets */,
+				BD46B96E2FD2316100974519 /* Frameworks */,
 				BD46B0BA2FC247D700974519 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +132,18 @@
 			isa = PBXGroup;
 			children = (
 				BD46B0B92FC247D700974519 /* national grid live.app */,
+				BD46B96D2FD2316000974519 /* NationalGridWidgetsExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BD46B96E2FD2316100974519 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BD46B96F2FD2316100974519 /* WidgetKit.framework */,
+				BD46B9712FD2316100974519 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +156,12 @@
 				BD46B0B52FC247D700974519 /* Sources */,
 				BD46B0B62FC247D700974519 /* Frameworks */,
 				BD46B0B72FC247D700974519 /* Resources */,
+				BD46B9802FD2316400974519 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				BD46B97E2FD2316400974519 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				BD46B0BB2FC247D700974519 /* national grid live */,
@@ -69,6 +172,28 @@
 			productName = "national grid live";
 			productReference = BD46B0B92FC247D700974519 /* national grid live.app */;
 			productType = "com.apple.product-type.application";
+		};
+		BD46B96C2FD2316000974519 /* NationalGridWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD46B9842FD2316400974519 /* Build configuration list for PBXNativeTarget "NationalGridWidgetsExtension" */;
+			buildPhases = (
+				BD46B9692FD2316000974519 /* Sources */,
+				BD46B96A2FD2316000974519 /* Frameworks */,
+				BD46B96B2FD2316000974519 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BD46B9732FD2316200974519 /* NationalGridWidgets */,
+			);
+			name = NationalGridWidgetsExtension;
+			packageProductDependencies = (
+			);
+			productName = NationalGridWidgetsExtension;
+			productReference = BD46B96D2FD2316000974519 /* NationalGridWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +206,9 @@
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					BD46B0B82FC247D700974519 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					BD46B96C2FD2316000974519 = {
 						CreatedOnToolsVersion = 26.5;
 					};
 				};
@@ -100,12 +228,20 @@
 			projectRoot = "";
 			targets = (
 				BD46B0B82FC247D700974519 /* national grid live */,
+				BD46B96C2FD2316000974519 /* NationalGridWidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		BD46B0B72FC247D700974519 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD46B96B2FD2316000974519 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +258,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BD46B9692FD2316000974519 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BD46B97E2FD2316400974519 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BD46B96C2FD2316000974519 /* NationalGridWidgetsExtension */;
+			targetProxy = BD46B97D2FD2316400974519 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		BD46B0C22FC247D900974519 /* Debug */ = {
@@ -252,7 +403,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 533A58DM46;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -268,7 +419,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.crainiate.national-grid-live";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -287,7 +438,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 533A58DM46;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -303,12 +454,78 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.crainiate.national-grid-live";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		BD46B9812FD2316400974519 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 533A58DM46;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NationalGridWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NationalGridWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.crainiate.national-grid-live.NationalGridWidgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BD46B9822FD2316400974519 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 533A58DM46;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NationalGridWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = NationalGridWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.crainiate.national-grid-live.NationalGridWidgets";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -333,6 +550,15 @@
 			buildConfigurations = (
 				BD46B0C52FC247D900974519 /* Debug */,
 				BD46B0C62FC247D900974519 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BD46B9842FD2316400974519 /* Build configuration list for PBXNativeTarget "NationalGridWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD46B9812FD2316400974519 /* Debug */,
+				BD46B9822FD2316400974519 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
