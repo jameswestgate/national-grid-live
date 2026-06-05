@@ -18,6 +18,10 @@ final class GridStore {
 
     private let liveProvider: any LiveDataProvider
     private let snapshotProvider: any SnapshotProvider
+    /// Shared with the widget extension via the App Group so the Lock Screen
+    /// widgets render the exact reading the app last fetched.
+    private let widgetSnapshot = try? JSONCache<LiveGrid>(
+        filename: AppGroup.snapshotFilename, appGroup: AppGroup.identifier)
 
     init(live: any LiveDataProvider, snapshot: any SnapshotProvider) {
         self.liveProvider = live
@@ -48,9 +52,10 @@ final class GridStore {
         do {
             live = try await liveProvider.fetch()
             liveState = .loaded
-            // Nudge the Lock Screen widgets to re-fetch while the app is open,
-            // so they're fresh the next time the user glances at the lock
-            // screen. No-op if no widgets are installed.
+            // Publish the current reading to the App Group so the Lock Screen
+            // widgets show the exact same numbers, then nudge them to reload.
+            // No-op if no widgets are installed.
+            if let current = live?.current { widgetSnapshot?.write(current) }
             WidgetCenter.shared.reloadAllTimelines()
         } catch {
             // Keep cached `live` visible; mark state as failed so UI can show a banner.

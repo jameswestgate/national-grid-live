@@ -2,10 +2,10 @@
 //  GenerationMixWidget.swift
 //  NationalGridWidgets
 //
-//  Lock Screen widget: the live generation mix — the largest contributing
-//  fuels (icon + GW) plus the current renewable share. Lock Screen accessory
-//  widgets render monochrome, so this relies on SF Symbols + numbers rather
-//  than the app's fuel colours.
+//  Lock Screen widget: total generation (hero) with the top-3 contributing
+//  fuels (icon + GW) in the row beneath. Lock Screen accessory widgets render
+//  monochrome, so this relies on SF Symbols + numbers rather than the app's
+//  fuel colours.
 //
 
 import WidgetKit
@@ -21,13 +21,15 @@ struct GenerationMixWidget: Widget {
         }
         .configurationDisplayName("Generation mix")
         .description("The live generation mix and renewable share.")
-        .supportedFamilies([.accessoryRectangular, .accessoryInline, .accessoryCircular])
+        .supportedFamilies([.accessoryRectangular, .accessoryInline])
     }
 }
 
 struct GenerationMixWidgetView: View {
     @Environment(\.widgetFamily) private var family
     let grid: LiveGrid
+
+    private var avg: PeriodAverages { grid.asAverages }
 
     /// Largest contributing fuels, ignoring pumped storage (a transfer, not
     /// generation) and anything that rounds to zero.
@@ -46,15 +48,6 @@ struct GenerationMixWidgetView: View {
         case .accessoryInline:
             Label("\(WidgetFormat.pct(renewableShare)) renewable", systemImage: "leaf.fill")
 
-        case .accessoryCircular:
-            Gauge(value: min(max(renewableShare, 0), 1)) {
-                Image(systemName: "leaf.fill")
-            } currentValueLabel: {
-                Text(WidgetFormat.pct(renewableShare))
-                    .minimumScaleFactor(0.7)
-            }
-            .gaugeStyle(.accessoryCircular)
-
         default: // .accessoryRectangular
             rectangular
         }
@@ -62,15 +55,24 @@ struct GenerationMixWidgetView: View {
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Label("Renewable", systemImage: "leaf.fill")
+            Text("Generation")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
             HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(WidgetFormat.pct(renewableShare))
-                    .font(.system(.title, design: .rounded).weight(.semibold))
+                Text(WidgetFormat.gw(avg.equationGeneration))
+                    .font(.system(size: 27, weight: .semibold, design: .rounded))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
-                Text("of demand").font(.caption2).foregroundStyle(.secondary)
+                Text("GW").font(.caption2).foregroundStyle(.secondary)
+                // Carbon intensity (g/kWh), whole number as in StatusBarView.
+                HStack(alignment: .firstTextBaseline, spacing: 1) {
+                    Text(WidgetFormat.whole(grid.emissions))
+                        .font(.system(size: 27, weight: .semibold, design: .rounded))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text("g/kWh").font(.caption2).foregroundStyle(.secondary)
+                }
+                .padding(.leading, 8)
             }
             HStack(spacing: 10) {
                 ForEach(topFuels, id: \.fuel) { item in
@@ -83,7 +85,9 @@ struct GenerationMixWidgetView: View {
                     }
                 }
             }
+            .padding(.top, 2)
         }
+        .padding(.bottom, 6)
         .widgetAccentable()
     }
 }

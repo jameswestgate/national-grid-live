@@ -2,9 +2,10 @@
 //  DemandWidget.swift
 //  NationalGridWidgets
 //
-//  Lock Screen widget: Demand = Generation + Transfers.
-//  Uses the same 1dp-rounded equation values as the in-app StatusBarView
-//  (PeriodAverages.equation*) so the figures match the app and grid.iamkate.com.
+//  Lock Screen widget: Demand (hero), broken into Generation / Interconnectors
+//  / Storage in the row beneath (they sum to demand). The hero uses the same
+//  1dp-rounded value as the in-app StatusBarView (PeriodAverages.equationDemand)
+//  so it matches the app and grid.iamkate.com.
 //
 
 import WidgetKit
@@ -20,7 +21,7 @@ struct DemandWidget: Widget {
         }
         .configurationDisplayName("Demand")
         .description("Demand = Generation + Transfers, live from the grid.")
-        .supportedFamilies([.accessoryRectangular, .accessoryInline, .accessoryCircular])
+        .supportedFamilies([.accessoryRectangular, .accessoryInline])
     }
 }
 
@@ -36,18 +37,6 @@ struct DemandWidgetView: View {
             // One line above the clock (system allows one symbol + text).
             Label("Demand \(WidgetFormat.gw(avg.equationDemand)) GW", systemImage: "bolt.fill")
 
-        case .accessoryCircular:
-            ZStack {
-                AccessoryWidgetBackground()
-                VStack(spacing: -2) {
-                    Image(systemName: "bolt.fill").font(.system(size: 11))
-                    Text(WidgetFormat.gw(avg.equationDemand))
-                        .font(.system(.headline, design: .rounded).weight(.semibold))
-                        .minimumScaleFactor(0.7)
-                    Text("GW").font(.system(size: 8)).foregroundStyle(.secondary)
-                }
-            }
-
         default: // .accessoryRectangular
             rectangular
         }
@@ -55,29 +44,45 @@ struct DemandWidgetView: View {
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Label("Demand", systemImage: "bolt.fill")
+            Text("Demand")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(WidgetFormat.gw(avg.equationDemand))
-                    .font(.system(.title, design: .rounded).weight(.semibold))
+                    .font(.system(size: 27, weight: .semibold, design: .rounded))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text("GW").font(.caption2).foregroundStyle(.secondary)
+                // Market price (£/MWh), whole £ as in StatusBarView.
+                HStack(alignment: .firstTextBaseline, spacing: 1) {
+                    Text("£").font(.caption2).foregroundStyle(.secondary)
+                    Text(WidgetFormat.whole(grid.price))
+                        .font(.system(size: 27, weight: .semibold, design: .rounded))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .padding(.leading, 12)
             }
-            Text(equationLine)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+            HStack(spacing: 10) {
+                summaryChip("bolt.fill", avg.equationGeneration)
+                summaryChip("arrow.left.arrow.right", grid.interconnectorsTotal)
+                summaryChip("minus.plus.batteryblock.fill", grid.fuels[.pumped] ?? 0)
+            }
+            .padding(.top, 2)
         }
+        .padding(.bottom, 6)
         .widgetAccentable()
     }
 
-    /// "Gen 28.5 + Trans 4.0" — operator flips to "−" for net exports,
-    /// matching StatusBarView / Equation.php.
-    private var equationLine: String {
-        let op = avg.equationTransfers < 0 ? "−" : "+"
-        return "Gen \(WidgetFormat.gw(avg.equationGeneration)) \(op) Trans \(WidgetFormat.gw(abs(avg.equationTransfers)))"
+    /// One icon + GW chip in the breakdown row: Generation (bolt),
+    /// Interconnectors (arrows), Storage (battery) — together summing to demand.
+    private func summaryChip(_ symbol: String, _ gw: Double) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: symbol)
+                .font(.system(size: 11))
+                .frame(width: 14)
+            Text(WidgetFormat.gw(gw))
+                .font(.caption2.weight(.semibold))
+        }
     }
 }
