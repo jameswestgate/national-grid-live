@@ -34,6 +34,7 @@ struct LatestSection: View {
     private var interconnectorsCard: some View {
         let total = stats.interconnectorsTotal
         let flows = Interconnector.allCases.map { ($0, stats.interconnectors[$0] ?? 0) }
+        let absTotal = flows.reduce(0) { $0 + abs($1.1) }
         // The interconnector bar has no donut equivalent, so it only appears
         // under the "Bar" chart style — hidden for Donut and None.
         let showBar = visualisation == .bar && flows.contains { abs($0.1) > 0.0001 }
@@ -51,7 +52,10 @@ struct LatestSection: View {
                         tint: ic.swatch,
                         name: ic.displayName,
                         gw: gw,
-                        percent: stats.share(gw)
+                        percent: stats.share(gw),
+                        // Bar = share of total interconnector movement (matches the
+                        // diverging header bar); % text stays share-of-demand.
+                        barFraction: absTotal > 0 ? abs(gw) / absTotal : 0
                     )
                 },
             headerGraphic: showBar

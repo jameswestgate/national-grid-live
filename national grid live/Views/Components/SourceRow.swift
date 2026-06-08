@@ -18,6 +18,10 @@ struct SourceRow: View {
     /// GW/% column lines up with sibling rows that do have one (the disclosable
     /// group headers). Used by the generation card's expanded member rows.
     var reservesChevronSpace: Bool = false
+    /// Optional explicit bar fill [0,1] that decouples the bar from `percent`.
+    /// Interconnectors pass |flow| / Σ|flows| here so the bar shows share of
+    /// total interconnector movement while the % text stays share-of-demand.
+    var barOverride: Double? = nil
 
     private static let chevronWidth: CGFloat = 14
 
@@ -69,6 +73,9 @@ struct SourceRow: View {
     }
 
     private var barProgress: Double {
+        // An explicit override (interconnectors use share of total interconnector
+        // movement) wins; otherwise the bar mirrors |percent| (share of demand).
+        if let barOverride { return min(max(barOverride, 0), 1) }
         guard let percent else { return 0 }
         return min(max(abs(percent), 0), 1)
     }

@@ -7,6 +7,8 @@ struct SourceListItem: Identifiable {
     let name: String
     let gw: Double?
     let percent: Double?
+    /// Optional explicit bar fill, decoupled from `percent` (see SourceRow).
+    var barFraction: Double? = nil
 }
 
 /// A flat card of source rows under an inline title — used for the
@@ -43,7 +45,8 @@ struct SourceListCard: View {
                         name: item.name,
                         gw: item.gw,
                         percent: item.percent,
-                        emphasised: true
+                        emphasised: true,
+                        barOverride: item.barFraction
                     )
                     .padding(16)
                     // Scroll target for the header graphic (e.g. an

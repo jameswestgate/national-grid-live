@@ -13,5 +13,6 @@ struct NationalGridWidgetsBundle: WidgetBundle {
     var body: some Widget {
         DemandWidget()
         GenerationMixWidget()
+        LiveMinimalWidget()
     }
 }
