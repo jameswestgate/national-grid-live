@@ -64,7 +64,7 @@ private struct LockScreenWidgetHelp: View {
     private let steps = [
         "Touch and hold your Lock Screen, then tap **Customise**.",
         "Tap the Lock Screen, then tap the widget area **below the time**.",
-        "Choose **National Grid: Live**, then add the **Demand** or **Generation mix** widget.",
+        "Choose **National Grid: Live**, then add the **Demand**, **Generation mix** or **Live Minimal** widget.",
     ]
 
     var body: some View {
@@ -86,7 +86,7 @@ private struct LockScreenWidgetHelp: View {
             } header: {
                 Text("Add a widget")
             } footer: {
-                Text("Two widgets are available: **Demand** (Demand = Generation + Transfers) and **Generation mix** (the live fuel breakdown and renewable share). They refresh automatically.")
+                Text("Three widgets are available: **Demand** (Demand = Generation + Transfers), **Generation mix** (the live fuel breakdown and renewable share) and **Live Minimal** (demand, price and carbon with the top live sources). They refresh automatically.")
             }
         }
         .navigationTitle("Lock Screen widget")
