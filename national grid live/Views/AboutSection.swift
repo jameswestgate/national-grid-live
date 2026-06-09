@@ -1,45 +1,29 @@
 import SwiftUI
 
-/// The lower half of the About screen: a "Data" card (sources/attribution for
-/// the live + historical feeds) and an "Original design" card. Split into two
-/// inline-titled cards so neither needs a redundant "About" header.
+/// The top card of the About screen. States what the app is and that it is an
+/// independent project — not affiliated with National Grid or any government
+/// body — then folds in the data sources/attribution and the original-design
+/// credit (previously two separate "Data" and "Original design" cards).
 struct AboutSection: View {
     let sources: Snapshot.SourceAttributions?
 
     var body: some View {
-        VStack(spacing: 16) {
-            dataCard
-            designCard
-        }
-    }
-
-    private var dataCard: some View {
         Card {
             VStack(alignment: .leading, spacing: 0) {
-                CardHeader(title: "Data")
+                CardHeader(title: "About this app")
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Live data is fetched directly from three public APIs. Historical aggregates are served by an open backfill snapshot.")
+                    Text("National Grid: Live is an independent app that shows publicly available data about how Great Britain's electricity is generated. It is not affiliated with, endorsed by, or connected to National Grid plc, the National Energy System Operator (NESO), Elexon, or any government body, and it does not represent or provide any government service.")
+                        .font(.body)
+                    Text("All of the data shown is open and free to use. Live readings are fetched directly from three public APIs; historical aggregates are served by an open backfill snapshot.")
                         .font(.body)
                     sourceLines
+                    Text("Inspired by *National Grid: Live* by Kate Morley (grid.iamkate.com), released under CC0 1.0 Universal.")
+                        .font(.body)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
                 .padding(.top, 4)
                 .padding(.bottom, 16)
-            }
-        }
-    }
-
-    private var designCard: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 0) {
-                CardHeader(title: "Original design")
-                Text("Inspired by *National Grid: Live* by Kate Morley (grid.iamkate.com), released under CC0 1.0 Universal.")
-                    .font(.body)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 16)
             }
         }
     }

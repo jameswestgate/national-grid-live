@@ -7,8 +7,8 @@ struct AboutScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    TransitionSection()
                     AboutSection(sources: store.snapshot?.sources)
+                    TransitionSection()
                 }
                 .padding(16)
             }

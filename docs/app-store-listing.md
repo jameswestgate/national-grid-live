@@ -23,6 +23,13 @@ See how Great Britain is powered right now: the live mix of gas, wind, solar and
 
 ## Description  (max 4000)
 ```
+National Grid: Live is an independent app that displays publicly available open data about Great Britain’s electricity grid. It is not affiliated with, endorsed by, or connected to National Grid plc, the National Energy System Operator (NESO), Elexon, or any government entity, and it does not represent or provide any government service.
+
+All data comes from official, publicly available open sources:
+• Elexon Insights (BMRS) — https://bmrs.elexon.co.uk
+• National Energy System Operator (NESO) Data Portal — https://www.neso.energy/data-portal
+• Carbon Intensity API, by NESO and the University of Oxford — https://carbonintensity.org.uk
+
 National Grid: Live shows you how Great Britain’s electricity is being generated right now — and how clean it is.
 
 Open the app to see the live generation mix at a glance: how much power is coming from gas, wind, solar, nuclear, hydro, biomass and storage, alongside the current demand, carbon intensity and wholesale price. Everything refreshes automatically as new readings are published.
