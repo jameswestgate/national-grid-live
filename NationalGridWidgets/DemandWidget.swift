@@ -61,7 +61,7 @@ struct DemandWidgetView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                 }
-                .padding(.leading, 12)
+                .padding(.leading, 4)
             }
             HStack(spacing: 10) {
                 summaryChip("bolt.fill", avg.equationGeneration)

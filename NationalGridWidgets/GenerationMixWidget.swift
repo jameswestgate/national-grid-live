@@ -65,6 +65,8 @@ struct GenerationMixWidgetView: View {
                     .minimumScaleFactor(0.7)
                 Text("GW").font(.caption2).foregroundStyle(.secondary)
                 // Carbon intensity (g/kWh), whole number as in StatusBarView.
+                // A small leading gap separates it from the generation value;
+                // kept tight so "g/kWh" stays on the line.
                 HStack(alignment: .firstTextBaseline, spacing: 1) {
                     Text(WidgetFormat.whole(grid.emissions))
                         .font(.system(size: 27, weight: .semibold, design: .rounded))
@@ -72,7 +74,7 @@ struct GenerationMixWidgetView: View {
                         .minimumScaleFactor(0.7)
                     Text("g/kWh").font(.caption2).foregroundStyle(.secondary)
                 }
-                .padding(.leading, 8)
+                .padding(.leading, 4)
             }
             HStack(spacing: 10) {
                 ForEach(topFuels, id: \.fuel) { item in
