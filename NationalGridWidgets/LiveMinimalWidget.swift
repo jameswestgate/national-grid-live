@@ -72,42 +72,50 @@ struct LiveMinimalWidgetView: View {
         }
     }
 
+    /// All three hero numbers share one size (white); their units (GW, £, g)
+    /// stay small + grey and sit tight against the number with no gap.
+    private var numberFont: Font { .system(size: 20, weight: .semibold, design: .rounded) }
+
+    private var demandStat: Text {
+        Text(WidgetFormat.whole(avg.equationDemand)).font(numberFont)
+        + Text("GW").font(.caption2).foregroundStyle(.secondary)
+    }
+
+    private var priceStat: Text {
+        Text("£").font(.caption2).foregroundStyle(.secondary)
+        + Text(WidgetFormat.whole(grid.price)).font(numberFont)
+    }
+
+    private var carbonStat: Text {
+        Text(WidgetFormat.whole(grid.emissions)).font(numberFont)
+        + Text("g").font(.caption2).foregroundStyle(.secondary)
+    }
+
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 3) {
-            // Hero: demand · price · carbon. Units (GW, £, g) are small + grey
-            // and sit tight against their numbers (no gaps); the three stats are
-            // separated by a little leading padding.
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-                // Demand + unit, no gap.
-                Text(WidgetFormat.whole(avg.equationDemand))
-                    .font(.system(size: 22, weight: .semibold, design: .rounded))
-                Text("GW").font(.caption2).foregroundStyle(.secondary)
-
-                // Price: "£" small + grey like the unit, then the number.
-                Text("£").font(.caption2).foregroundStyle(.secondary)
-                    .padding(.leading, 7)
-                Text(WidgetFormat.whole(grid.price))
-                    .font(.callout.weight(.medium))
-
-                // Carbon: number then "g" small + grey, no gap.
-                Text(WidgetFormat.whole(grid.emissions))
-                    .font(.callout.weight(.medium))
-                    .padding(.leading, 7)
-                Text("g").font(.caption2).foregroundStyle(.secondary)
+            // Hero: demand · price · carbon spread across the full width as three
+            // equal columns — demand left-aligned, price centred, carbon right-
+            // aligned. minimumScaleFactor keeps them on one line whatever the
+            // values.
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                demandStat.frame(maxWidth: .infinity, alignment: .leading)
+                priceStat.frame(maxWidth: .infinity, alignment: .center)
+                carbonStat.frame(maxWidth: .infinity, alignment: .trailing)
             }
             .lineLimit(1)
-            .minimumScaleFactor(0.7)
+            .minimumScaleFactor(0.6)
 
-            // Breakdown: the four largest sources (icon + GW). Spacing and icons
-            // are kept tight so the numbers get the most width and read at full
-            // size without scaling down.
-            HStack(spacing: 3) {
-                ForEach(topSources) { source in
+            // Breakdown: the four largest sources (icon + GW), spread edge-to-edge
+            // so they fill the width. Values keep a decimal below 10 and round to
+            // a whole number at 10+ (WidgetFormat.source).
+            HStack(spacing: 0) {
+                ForEach(Array(topSources.enumerated()), id: \.element.id) { index, source in
+                    if index > 0 { Spacer(minLength: 2) }
                     HStack(spacing: 1) {
                         Image(systemName: source.symbol)
                             .font(.system(size: 9))
                             .frame(width: 11)
-                        Text(WidgetFormat.gw(source.gw))
+                        Text(WidgetFormat.source(source.gw))
                             .font(.caption2.weight(.semibold))
                     }
                 }

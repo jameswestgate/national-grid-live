@@ -76,6 +76,12 @@ struct GridTimelineProvider: TimelineProvider {
 enum WidgetFormat {
     /// GW to one decimal place, e.g. "32.4".
     static func gw(_ value: Double) -> String { String(format: "%.1f", value) }
+    /// A breakdown source value: keep one decimal below 10 (e.g. "8.4"), round
+    /// to a whole number at 10 and above (e.g. "13") so the row stays compact.
+    /// Thresholds on magnitude so exports/imports keep their sign.
+    static func source(_ value: Double) -> String {
+        abs(value) < 10 ? String(format: "%.1f", value) : String(format: "%.0f", value)
+    }
     /// A whole number with no decimal, e.g. "108" — for price (£/MWh) and
     /// emissions (g/kWh).
     static func whole(_ value: Double) -> String { String(format: "%.0f", value) }
