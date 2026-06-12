@@ -23,16 +23,16 @@ See how Great Britain is powered right now: the live mix of gas, wind, solar and
 
 ## Description  (max 4000)
 ```
-National Grid: Live is an independent app that displays publicly available open data about Great Britain’s electricity grid. It is not affiliated with, endorsed by, or connected to National Grid plc, the National Energy System Operator (NESO), Elexon, or any government entity, and it does not represent or provide any government service.
+Is now a good time to charge the car? National Grid: Live tells you at a glance. When Great Britain's grid is running on wind, sunshine and nuclear, electricity is clean and often cheap - and when it's leaning on gas, it isn't. If you care about the carbon your electricity produces, or the price you pay for it, knowing when to plug in - and when to wait an hour - genuinely makes a difference.
+
+National Grid: Live is an independent app that displays publicly available open data about Great Britain's electricity grid. It is not affiliated with, endorsed by, or connected to National Grid plc, the National Energy System Operator (NESO), Elexon, or any government entity, and it does not represent or provide any government service.
 
 All data comes from official, publicly available open sources:
 • Elexon Insights (BMRS) - https://bmrs.elexon.co.uk
 • National Energy System Operator (NESO) Data Portal - https://www.neso.energy/data-portal
 • Carbon Intensity API, by NESO and the University of Oxford - https://carbonintensity.org.uk
 
-National Grid: Live shows you how Great Britain’s electricity is being generated right now - and how clean it is.
-
-Open the app to see the live generation mix at a glance: how much power is coming from gas, wind, solar, nuclear, hydro, biomass and storage, alongside the current demand, carbon intensity and wholesale price. Everything refreshes automatically as new readings are published.
+Open the app to see the live generation mix at a glance: how much power is coming from gas, wind, solar, nuclear, hydro, biomass and storage, alongside the current demand, carbon intensity and wholesale price. Everything refreshes automatically as new readings are published - no account, no setup.
 
 LIVE
 • The current generation mix as a clear bar or donut chart
@@ -46,13 +46,17 @@ HISTORIC
 • Trend graphs for price, emissions, demand, generation and transfers
 • Tap any point on a graph to read the exact values
 
-DESIGNED FOR iPHONE
-• A native interface for iPhone
+WIDGETS AND ALERTS
+The whole point is not having to keep checking. Put the live grid on your Home Screen or Lock Screen, and let the app tell you when something worth knowing happens.
 • Home Screen widgets: the live generation mix and interconnector flows, in colour, in two sizes
 • Lock Screen widgets: pick demand, the live generation mix, or a minimal summary with demand, price, carbon and the top sources
-• Optional alerts for high or low carbon intensity and high, low or negative prices - checked periodically, at most one of each per day
+• Optional alerts for high or low carbon intensity and high, low or negative prices - at most one of each per day
+
+DESIGNED FOR iPHONE
+• A native interface for iPhone
 • Light and dark appearance
 • Choose a bar chart or donut, or hide it
+• The latest readings are cached, so the app opens instantly
 
 PRIVACY
 National Grid: Live collects no personal data, has no accounts, and contains no advertising or tracking of any kind.
@@ -100,10 +104,22 @@ Initial release, with Home Screen and Lock Screen widgets and optional price and
 
 ## Notes for App Review  (App Store Connect → App Review Information → Notes)
 ```
-National Grid: Live is an independent app that visualises publicly available open
-data about Great Britain's electricity grid (from Elexon, NESO and the Carbon
-Intensity API). It requires no account or login, collects no personal data, and
-needs no special configuration to review - just launch and the live data loads.
+Hello, and thanks for reviewing - a little background from the developer.
+
+I built National Grid: Live because I care about when I use electricity. I found
+myself checking Great Britain's grid data on the web several times a day -
+before charging the car, before putting the washing on - and opening a browser
+and hunting for the numbers every time was slow and annoying. What I actually
+wanted was the answer on my Lock Screen, and a nudge when conditions changed.
+That's exactly what this app adds: when the grid is windy and clean (or prices
+go negative), it's a great time to plug in; when it's running on gas, it can
+wait. I use it every day, and I think it's genuinely useful for anyone in the
+UK who cares about the carbon their electricity produces.
+
+The app visualises publicly available open data (from Elexon, NESO and the
+Carbon Intensity API). It requires no account or login, collects no personal
+data, and needs no special configuration to review - just launch it and the
+live data loads.
 
 Native functionality beyond the in-app charts:
 - Two Home Screen widgets (small and medium sizes): the live generation mix and
