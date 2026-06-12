@@ -48,7 +48,9 @@ HISTORIC
 
 DESIGNED FOR iPHONE
 • A native interface for iPhone
+• Home Screen widgets: the live generation mix and interconnector flows, in colour, in two sizes
 • Lock Screen widgets: pick demand, the live generation mix, or a minimal summary with demand, price, carbon and the top sources
+• Optional alerts for high or low carbon intensity and high, low or negative prices - checked periodically, at most one of each per day
 • Light and dark appearance
 • Choose a bar chart or donut, or hide it
 
@@ -91,9 +93,9 @@ electricity,energy,grid,power,carbon,emissions,wind,solar,renewable,nuclear,gas,
 ## Export compliance
 - Already declared in the build: `ITSAppUsesNonExemptEncryption = NO` (standard HTTPS only) - no extra paperwork.
 
-## What's New (v1.2)
+## What's New (v1.4)
 ```
-Initial release, with support for Lock Screen widgets.
+Initial release, with Home Screen and Lock Screen widgets and optional price and carbon alerts.
 ```
 
 ## Notes for App Review  (App Store Connect → App Review Information → Notes)
@@ -102,6 +104,18 @@ National Grid: Live is an independent app that visualises publicly available ope
 data about Great Britain's electricity grid (from Elexon, NESO and the Carbon
 Intensity API). It requires no account or login, collects no personal data, and
 needs no special configuration to review - just launch and the live data loads.
+
+Native functionality beyond the in-app charts:
+- Two Home Screen widgets (small and medium sizes): the live generation mix and
+  interconnector import/export flows, colour-coded with legends. Add via
+  long-press on the Home Screen > Edit > Add Widget > National Grid: Live.
+- Three Lock Screen widgets (Demand, Generation mix, Live Minimal). Add via
+  long-press on the Lock Screen > Customise > tap the widget area.
+- Opt-in local notifications (Settings > Notifications in the app): alerts for
+  high/low carbon intensity and high/low/negative wholesale prices, evaluated on
+  refresh and via background app refresh, at most one of each type per day.
+- Offline support: the last readings are cached and shown immediately on launch.
+- Interactive native charts (tap segments and graph points to inspect values).
 ```
 
 ---

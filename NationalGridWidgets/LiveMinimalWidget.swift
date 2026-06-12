@@ -63,7 +63,7 @@ struct LiveMinimalWidgetView: View {
         case .accessoryInline:
             // One line above the clock: demand and price.
             Label(
-                "\(WidgetFormat.whole(avg.equationDemand)) GW  £\(WidgetFormat.whole(grid.price))",
+                "\(WidgetFormat.whole(avg.equationDemand)) GW  £\(WidgetFormat.price(grid.price))",
                 systemImage: "bolt.fill"
             )
 
@@ -83,7 +83,7 @@ struct LiveMinimalWidgetView: View {
 
     private var priceStat: Text {
         Text("£").font(.caption2).foregroundStyle(.secondary)
-        + Text(WidgetFormat.whole(grid.price)).font(numberFont)
+        + Text(WidgetFormat.price(grid.price)).font(numberFont)
     }
 
     private var carbonStat: Text {
@@ -93,14 +93,18 @@ struct LiveMinimalWidgetView: View {
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 3) {
-            // Hero: demand · price · carbon spread across the full width as three
-            // equal columns — demand left-aligned, price centred, carbon right-
-            // aligned. minimumScaleFactor keeps them on one line whatever the
-            // values.
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                demandStat.frame(maxWidth: .infinity, alignment: .leading)
-                priceStat.frame(maxWidth: .infinity, alignment: .center)
-                carbonStat.frame(maxWidth: .infinity, alignment: .trailing)
+            // Hero: demand · price · carbon spread across the full width. Each
+            // stat takes its natural width with flexible spacers between — NOT
+            // three equal columns, which squeezed the widest stat (a "£-5.58"
+            // price) down to its scale factor while its neighbours stayed big.
+            // minimumScaleFactor remains as a safety net, but it now only kicks
+            // in if the whole line overflows, so the stats shrink together.
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                demandStat
+                Spacer(minLength: 4)
+                priceStat
+                Spacer(minLength: 4)
+                carbonStat
             }
             .lineLimit(1)
             .minimumScaleFactor(0.6)

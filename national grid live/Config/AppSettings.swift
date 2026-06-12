@@ -67,6 +67,19 @@ enum AppSettings {
     static let themeKey = "appTheme"
     /// `@AppStorage` key for showing legends under the Historic charts. Default: off.
     static let showGraphLegendsKey = "showGraphLegends"
+
+    // Notification alert toggles (Settings → Notifications). All default to
+    // off — the app never notifies without an explicit opt-in.
+    /// Alert when carbon intensity rises above `GridAlert.highCarbonThreshold`.
+    static let alertHighCarbonKey = "alertHighCarbon"
+    /// Alert when carbon intensity falls below `GridAlert.lowCarbonThreshold`.
+    static let alertLowCarbonKey = "alertLowCarbon"
+    /// Alert when the wholesale price rises above `GridAlert.highPriceThreshold`.
+    static let alertHighPriceKey = "alertHighPrice"
+    /// Alert when the wholesale price falls below `GridAlert.lowPriceThreshold`.
+    static let alertLowPriceKey = "alertLowPrice"
+    /// Alert when the wholesale price goes negative.
+    static let alertNegativePriceKey = "alertNegativePrice"
 }
 
 /// A tap on the generation graphic (bar segment or donut slice). Shared by

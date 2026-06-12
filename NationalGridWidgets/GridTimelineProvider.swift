@@ -85,6 +85,12 @@ enum WidgetFormat {
     /// A whole number with no decimal, e.g. "108" — for price (£/MWh) and
     /// emissions (g/kWh).
     static func whole(_ value: Double) -> String { String(format: "%.0f", value) }
+    /// Price (£/MWh): pence matter on a single-digit price (e.g. "-6.42"),
+    /// so keep two decimals below 10 and round to a whole £ at 10 and above.
+    /// Threshold on magnitude so negative prices keep their pence too.
+    static func price(_ value: Double) -> String {
+        abs(value) < 10 ? String(format: "%.2f", value) : String(format: "%.0f", value)
+    }
     /// A whole-number percentage, e.g. "42%".
     static func pct(_ share: Double) -> String { String(format: "%.0f%%", share * 100) }
 }

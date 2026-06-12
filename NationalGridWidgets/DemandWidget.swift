@@ -53,10 +53,10 @@ struct DemandWidgetView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text("GW").font(.caption2).foregroundStyle(.secondary)
-                // Market price (£/MWh), whole £ as in StatusBarView.
+                // Market price (£/MWh), formatted as in StatusBarView.
                 HStack(alignment: .firstTextBaseline, spacing: 1) {
                     Text("£").font(.caption2).foregroundStyle(.secondary)
-                    Text(WidgetFormat.whole(grid.price))
+                    Text(WidgetFormat.price(grid.price))
                         .font(.system(size: 27, weight: .semibold, design: .rounded))
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)

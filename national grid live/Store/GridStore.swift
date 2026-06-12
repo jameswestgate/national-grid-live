@@ -52,11 +52,16 @@ final class GridStore {
         do {
             live = try await liveProvider.fetch()
             liveState = .loaded
-            // Publish the current reading to the App Group so the Lock Screen
-            // widgets show the exact same numbers, then nudge them to reload.
-            // No-op if no widgets are installed.
+            // Publish the current reading to the App Group so the widgets show
+            // the exact same numbers, then nudge them to reload. No-op if no
+            // widgets are installed.
             if let current = live?.current { widgetSnapshot?.write(current) }
             WidgetCenter.shared.reloadAllTimelines()
+            // Check the opt-in notification alerts against the new reading
+            // (once-a-day throttle makes repeat checks idempotent).
+            if let current = live?.current {
+                await GridAlertCenter().evaluateAndNotify(grid: current)
+            }
         } catch {
             // Keep cached `live` visible; mark state as failed so UI can show a banner.
             liveState = .failed(error.localizedDescription)

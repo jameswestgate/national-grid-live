@@ -37,9 +37,17 @@ struct SettingsScreen: View {
                     .labelsHidden()
                 }
 
-                Section("Lock screen") {
+                Section("Notifications") {
                     NavigationLink {
-                        LockScreenWidgetHelp()
+                        NotificationSettingsScreen()
+                    } label: {
+                        Label("Alerts", systemImage: "bell.badge")
+                    }
+                }
+
+                Section("Widgets") {
+                    NavigationLink {
+                        WidgetHelp()
                     } label: {
                         Label("Add a widget", systemImage: "rectangle.on.rectangle.angled")
                     }
@@ -56,12 +64,15 @@ struct SettingsScreen: View {
     }
 }
 
-/// Walkthrough for adding the Lock Screen widgets. iOS gives apps no way to
-/// place a widget programmatically — the user adds it from the Lock Screen — so
-/// this screen simply explains the gesture (the "Coming soon" row used to be a
-/// dead placeholder).
-private struct LockScreenWidgetHelp: View {
-    private let steps = [
+/// Walkthrough for adding the Home Screen and Lock Screen widgets. iOS gives
+/// apps no way to place a widget programmatically — the user adds them from
+/// the Home/Lock Screen — so this screen simply explains the gestures.
+private struct WidgetHelp: View {
+    private let homeSteps = [
+        "Touch and hold your Home Screen, then tap **Edit** and choose **Add Widget**.",
+        "Search for **National Grid: Live**, then add the **Generation mix** or **Interconnectors** widget in the size you prefer.",
+    ]
+    private let lockSteps = [
         "Touch and hold your Lock Screen, then tap **Customise**.",
         "Tap the Lock Screen, then tap the widget area **below the time**.",
         "Choose **National Grid: Live**, then add the **Demand**, **Generation mix** or **Live Minimal** widget.",
@@ -70,27 +81,38 @@ private struct LockScreenWidgetHelp: View {
     var body: some View {
         List {
             Section {
-                ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
-                    HStack(alignment: .top, spacing: 14) {
-                        Text("\(index + 1)")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 26, height: 26)
-                            .background(Circle().fill(Color.accentColor))
-                        Text(.init(step))
-                            .font(.subheadline)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .padding(.vertical, 2)
-                }
+                stepRows(homeSteps)
             } header: {
-                Text("Add a widget")
+                Text("Home Screen")
             } footer: {
-                Text("Three widgets are available: **Demand** (Demand = Generation + Transfers), **Generation mix** (the live fuel breakdown and renewable share) and **Live Minimal** (demand, price and carbon with the top live sources). They refresh automatically.")
+                Text("Home Screen widgets show the live generation mix and interconnector flows in colour.")
+            }
+            Section {
+                stepRows(lockSteps)
+            } header: {
+                Text("Lock Screen")
+            } footer: {
+                Text("Lock Screen widgets show **Demand** (Demand = Generation + Transfers), **Generation mix** (the live fuel breakdown and renewable share) and **Live Minimal** (demand, price and carbon with the top live sources). All widgets refresh automatically.")
             }
         }
-        .navigationTitle("Lock Screen widget")
+        .navigationTitle("Widgets")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func stepRows(_ steps: [String]) -> some View {
+        ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
+            HStack(alignment: .top, spacing: 14) {
+                Text("\(index + 1)")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 26, height: 26)
+                    .background(Circle().fill(Color.accentColor))
+                Text(.init(step))
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(.vertical, 2)
+        }
     }
 }
 

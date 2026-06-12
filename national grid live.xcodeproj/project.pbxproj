@@ -78,12 +78,20 @@
 			);
 			target = BD46B96C2FD2316000974519 /* NationalGridWidgetsExtension */;
 		};
+		BD46BAFF2FD2316400974519 /* Exceptions for "national grid live" folder in "national grid live" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BD46B0B82FC247D700974519 /* national grid live */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		BD46B0BB2FC247D700974519 /* national grid live */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				BD46BAFF2FD2316400974519 /* Exceptions for "national grid live" folder in "national grid live" target */,
 				BD46B9982FD2368100974519 /* Exceptions for "national grid live" folder in "NationalGridWidgetsExtension" target */,
 			);
 			path = "national grid live";
@@ -406,10 +414,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "national grid live/national grid live.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 533A58DM46;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "national grid live/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "National Grid: Live";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -422,7 +431,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.crainiate.national-grid-live";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -442,10 +451,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "national grid live/national grid live.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 533A58DM46;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "national grid live/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "National Grid: Live";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -458,7 +468,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.crainiate.national-grid-live";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -478,7 +488,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = NationalGridWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 533A58DM46;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NationalGridWidgets/Info.plist;
@@ -490,7 +500,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.crainiate.national-grid-live.NationalGridWidgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -512,7 +522,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = NationalGridWidgetsExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = 533A58DM46;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NationalGridWidgets/Info.plist;
@@ -524,7 +534,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.crainiate.national-grid-live.NationalGridWidgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

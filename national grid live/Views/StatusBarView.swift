@@ -51,8 +51,9 @@ struct StatusBarView: View {
     private var priceText: String {
         guard let p = stats.price else { return "—" }
         // Round to the nearest whole £ — less screen real estate than Kate's site,
-        // so the value stays short and the font never has to shrink.
-        return String(format: "%.0f", p)
+        // so the value stays short and the font never has to shrink. Below £10
+        // the pence are most of the story (e.g. "-6.42"), so keep two decimals.
+        return String(format: abs(p) < 10 ? "%.2f" : "%.0f", p)
     }
 
     private var emissionsText: String {
